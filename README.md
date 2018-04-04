@@ -1,15 +1,16 @@
 # Zumo robot project
-## School embedded system development project
+## Embedded system development project
 
 PSoC Creator project for Metropolia PSoC-Zumo adapter
 
 Developers:
 Cultural group members: Uyiosa, Zoltan and Albert
+
 1st year students of Metropolia UAS in Espoo, Finland
 
 Aim:
 Control Zumo robot to:
-* Follow a draw path
+* Follow a drawn path
 * Simple sumo style match
 
 Robot control include:
