@@ -67,6 +67,8 @@ int main()
 
     printf("\nBoot\n");
 
+    bool BatteryLed_Status = false;
+    
     //BatteryLed_Write(1); // Switch led on 
     BatteryLed_Write(0); // Switch led off 
     //uint8 button;
@@ -82,7 +84,13 @@ int main()
             adcresult = ADC_Battery_GetResult16(); // get the ADC value (0 - 4095)
             // convert value to Volts
             // you need to implement the conversion
-            
+            volts = (float)adcresult / 4095 * 5;
+            volts *= 1.5f;
+            if ((volts <= 4.0f) && (!BatteryLed_Status))
+            {
+                BatteryLed_Write(1);
+                BatteryLed_Status = true;
+            }
             // Print both ADC results and converted value
             printf("%d %f\r\n",adcresult, volts);
         }
