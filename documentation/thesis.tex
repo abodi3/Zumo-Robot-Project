@@ -46,19 +46,17 @@
 %	THESIS
 %----------------------------------------------------------------------------------------
 
-\author{Uyiosa Imarhiagbe, Zoltan Gere, Albert Offei}
-\title{Pathfinder}
+\author{Uyiosa Imarhiagbe, Zoltán Gere, Albert Offei}
+\title{Path follower(TM)}
 
-%IN ENGLISH, you can comment out/remove till line \def\avainsanat
 \date{\today}
 \def\metropoliadegree {Bachelor of Engineering}
-\def\metropoliadegreeprogramme {Name of your degree programme}
-\def\metropoliaspecialisation {Name of your specialisation option}
+\def\metropoliadegreeprogramme {Information Technology}
+\def\metropoliaspecialisation {Smart Systems / Devices}
 \def\metropoliainstructors {
-First name Last name, Title (for example: Project Manager)\newline
-First name Last name, Title (for example: Principal Lecturer)
-}
-\def\metropoliakeywords {Keywords}
+Joseph Hotchkiss, Project Engineer\newline
+Keijo Länsikunnas, Senior Lecturer}
+\def\metropoliakeywords {Devices, Smart Systems, Embedded systems, Electronics}
 
 %----------------------------------------------------------------------------------------
 %	GLOBAL STYLES
@@ -182,6 +180,7 @@ xleftmargin=1cm
 %change toc title
 %COMMENT OUT FOR ENGLISH
 %\addto{\captionsfinnish}{\renewcommand*{\contentsname}{Sisällys}}
+%\renewcommand*{\contentsname}{Table of contents}
 %remove dots
 \renewcommand*{\cftdotsep}{\cftnodots}
 %chapter title and page number not in bold
@@ -262,13 +261,6 @@ keepaspectratio]{viiva}%
 \tn{\LARGE \@author\\[0.75cm]\Huge \@title}\\[3.5cm]
 
 \parbox{.7\linewidth}{\normalsize 
-%IN FINNISH
-%Metropolia Ammattikorkeakoulu\\[2pt]
-%\tutkinto \\[2pt]
-%\kohjelma \\[2pt]
-%Insinöörityö\\[2pt]
-%ddmmyyyydate\today}
-%IN ENGLISH
 Helsinki Metropolia University of Applied Sciences\\[2pt]
 \metropoliadegree \\[2pt]
 \metropoliadegreeprogramme \\[2pt]
@@ -280,11 +272,6 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 \clearpage
 }
 \makeatother
-
-%IN ENGLISH COMMENT THIS 3 LINES
-%\makepagestyle{tiivis}
-%\makeevenhead{tiivis}{}{}{Tiivistelmä}
-%\makeoddhead{tiivis}{}{}{Tiivistelmä}
 
 \makepagestyle{abstract}
 \makeevenhead{abstract}{}{}{Abstract}
@@ -345,8 +332,7 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
   Instructor(s) & \metropoliainstructors
   \\ \hline
   \multicolumn{2}{|p{15cm}|}{
-  Abstract content
-  
+  	Projects aim is to develop an embedded software for Zumo robot controll. This documentation covers the theoretical and practical aspects required during development. Necessary mathematical, physical and electronic concepts also presented.
   } \\[14cm] \hline
   Keywords & \metropoliakeywords
   \\ \hline
@@ -357,7 +343,7 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 %	Acknowledgement ?
 %----------------------------------------------------------------------------------------
 %\chapter*{Acknowledgement}
-%Thanks to my cat
+%Thanks to my cats Sirnik and Masa for their continuous support.
 %\clearpage
 
 %----------------------------------------------------------------------------------------
@@ -384,17 +370,19 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 \pagestyle{empty}
 \ThisLRCornerWallPaper{1}{footer}
 \setlength{\parskip}{1cm}
-%IN ENGLISH
-%\chapter*{Abbreviation}
-%\cftaddtitleline{toc}{chapter}{Abbreviation}{}
+\chapter*{Abbreviation}
+\cftaddtitleline{toc}{chapter}{Abbreviation}{}
 \begin{table}[h]
 \setlength{\tabcolsep}{8pt}
 \renewcommand{\arraystretch}{2}
 \begin{tabular}{l p{12cm}}
-PID & Proportional, Integral, Derivate\\
-OMG & Oh my god\\
-WTF & What the F\\
-TL;DR & Too long, didn't read\\
+AC	& Alternating current\\
+DC	& Direct current\\
+IR	& Infrared\\
+NiMH	& Nickel-metal hydride\\
+PID & Proportional, Integral, Derivate (control)\\
+PWM & Pulse-width modulation\\
+
 \end{tabular}
 \end{table}
 
@@ -410,10 +398,50 @@ TL;DR & Too long, didn't read\\
 %----------------------------------------------------------------------------------------
 %	CONTENT
 %----------------------------------------------------------------------------------------
-
 \chapter{Introduction}
-Ghantt chart
+
+\chapter{Background}
+
+This chapter gives insight to technical background
+
+\section{Electronic basics}
+
+\subsection{Pulse Width Modulation}
+
+\subsection{Infra red sensor}
+Infrared light sensor operation.
+
+\section{Cypress CY8 modeling kit}
+
+\section{Zumo robot}
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+\subsection{Battery management}
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\subsection{Motor control}
+
+\subsection{Sensor reading}
+
+\chapter{Realization}
+
+\section{The embedded software}
 Flow charts
+
+\subsection{Software mechanics}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\section{Timing}
+Gantt charts
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+
+\chapter{Latex formating helplet}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
 
 \section{Section}
@@ -520,29 +548,7 @@ As presented in table \ref{table:some_data}: Donec et sapien ac leo condimentum 
 
 As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
 
-\chapter{Background}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
-
-Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-
-\chapter{Third Chapter}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
-
-Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-
-\section{Section}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-
-\section{Section}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
 
 %----------------------------------------------------------------------------------------
 %   BIBLIOGRAPHY 
@@ -591,7 +597,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam
 \makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
 \makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
 
-\chapter{My First Appendix}\label{appx:first}
+\chapter{Mathematics}\label{appx:first}
 
 Note that every appendix will be a chapter.
 
@@ -614,8 +620,6 @@ Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendreri
 
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
 
-
-%TODO with my ugly hack, for every appendix you will have to make this 
 \clearpage % avoid that the last page of previous appendix get this header
 \setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
 \newtotcounter{appx2} % to have the total for this appendix and not the previous one.
@@ -623,10 +627,14 @@ Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit ma
 \makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
 \makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
 
-\chapter{My Second Appendix}\label{appx:second}
+\chapter{Physics}\label{appx:second}
 
+\section{Kinematics}
+
+\section{Electricity}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
 
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+\section{Infrared light}
+Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
 
 \end{document}
