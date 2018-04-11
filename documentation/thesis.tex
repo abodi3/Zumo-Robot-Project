@@ -1,0 +1,632 @@
+%----------------------------------------------------------------------------------------
+%	Metropolia Thesis LaTeX Template
+%----------------------------------------------------------------------------------------
+% License:
+% This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
+%
+% Authors:
+% Panu Leppäniemi, Patrik Luoto and Patrick Ausderau
+%
+% Credits:
+% Panu Leppäniemi: abstract, def, cleaning,...
+% Patrik Luoto: title page, abstract in Finnish, abbreviation, math,...
+% Patrick Ausderau: initial version, style, table of content, bibliography, figure, appendix, table, source code listing...
+%
+% Please:
+% If you find mistakes, improve this template and alike, please contribute by sharing your improvements and/or send us your feedback there: https://github.com/panunu/metropolia-thesis-latex
+% And of course, if you improve it, add yourself as an author.
+%
+% Compiler:
+% Use XeLaTeX as a compiler.
+
+%----------------------------------------------------------------------------------------
+%    ToDo
+%----------------------------------------------------------------------------------------
+% % % TÄRKEÄT
+% % Translate "listing" in finnish (when inserting source code in the text)
+% % Joku ifdef-tyyppinen vipu kieliversiolle (otsikot ja placeholdertekstit)
+%    % Vaihtoehtona tietty erilliset filet suomelle ja enkulle, mutta
+%    % tämä heikentää päivitettävyyttä (pitää aina muistaa korjata kahteen paikkaan).
+%    % PA: I put CAPS comments where to switch depending on the language
+% % Lisensointi (otsikkoon tekijä ja avoin lisenssi (esim. CC-BY, pohjan laatija
+%   mainittava kommenttirivillä tjsp. [pohja ei ylitä teoskynnystä mutta kiva mainita].
+%   PA: done
+% % Projektin siirto Githubiin (siinä on issueträkkäys sun muut kivasti kunnossa) Vai?
+%   %PA: done
+% % Odotetaan 29.11.2013 asti äikänmaikkojen ja viestinnän mahdollisia kommentteja.
+%   %done?
+% %Reduce the vertical spacing for appendix in table of content
+%   %done
+%
+% % % Vähemmän tärkeät
+  % PNG:iden tilalle vektorigraffaa, jos vain löytyy kohtuuvaivalla
+
+ 
+%----------------------------------------------------------------------------------------
+%	THESIS
+%----------------------------------------------------------------------------------------
+
+\author{Uyiosa Imarhiagbe, Zoltan Gere, Albert Offei}
+\title{Pathfinder}
+
+%IN ENGLISH, you can comment out/remove till line \def\avainsanat
+\date{\today}
+\def\metropoliadegree {Bachelor of Engineering}
+\def\metropoliadegreeprogramme {Name of your degree programme}
+\def\metropoliaspecialisation {Name of your specialisation option}
+\def\metropoliainstructors {
+First name Last name, Title (for example: Project Manager)\newline
+First name Last name, Title (for example: Principal Lecturer)
+}
+\def\metropoliakeywords {Keywords}
+
+%----------------------------------------------------------------------------------------
+%	GLOBAL STYLES
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt,a4paper,oneside,article]{memoir}
+%\usepackage[utf8]{inputenc}
+%\usepackage[ansinew]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage[finnish]{babel} %IN ENGLISH, you can comment out or change this depending on your language
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{fontspec}
+\usepackage{tocloft}
+%\usepackage{lipsum}
+\usepackage{titlesec}
+\usepackage[hyphens]{url}
+\usepackage{mathtools}
+\usepackage{wallpaper}
+\usepackage{eso-pic}
+\usepackage{datetime}
+%\usepackage{lastpage} %other trick ;)
+\usepackage{url}
+\usepackage[amssymb]{SIunits}
+
+
+
+\renewcommand{\dateseparator}{.}
+%condition for adding or not space in TOC
+\usepackage{etoolbox}
+%for compact list
+\usepackage{enumitem}
+%for block comment
+\usepackage{verbatim}
+%for "easier" references
+\usepackage{varioref}
+%forcing single line spacing in bibliography
+\DisemulatePackage{setspace}
+\usepackage{setspace}
+%including figure (image)
+\usepackage{graphicx}
+%change the numbering for figure
+\usepackage{chngcntr}
+%strike trough
+\usepackage{ulem}
+%euro symbol
+\usepackage{eurosym}
+%try to count
+\usepackage{totcount}
+%insert source code
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{color}
+%force the width of a table instead of column
+\usepackage{tabularx}
+
+%NORMAL TEXT
+%all text, title, etc. in the same font: Arial
+%\setmainfont{Arial}
+\setmainfont[
+BoldFont=arialbd.ttf,
+ItalicFont=ariali.ttf,
+BoldItalicFont=arialbi.ttf
+]{arial.ttf}
+%line space
+\linespread{1.5}
+%\doublespacing
+%margin
+\usepackage[top=2.5cm, bottom=3cm, left=4cm, right=2cm, nofoot]{geometry}
+\setlength{\parindent}{0pt} %first line of paragraph not indented
+\setlength{\parskip}{16.5pt} %one empty line to separate paragraph
+%list with small line space separation
+\tightlists
+
+%IMAGE - FIGURE
+%the figures should be placed in the "illustration" folder
+\graphicspath{{illustration/}}
+%figure number without chapter (1.1, 1.2, 2.1) to (1, 2, 3)
+\counterwithout{figure}{chapter}
+%border around images
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+%caption font size
+\captionnamefont{\small}
+\captiontitlefont{\small}
+%space after figure caption (and other float elements)
+\setlength{\belowcaptionskip}{-7pt}
+
+%TABLE
+\counterwithout{table}{chapter}
+
+%SOURCE CODE
+%YOU NEED TO TRANSLATE THE CAPTION "Listing" in Finnish. 
+%IN ENGLISH Nothing to do
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\lstset{
+extendedchars=true,
+captionpos=b,
+caption=\footnotesize,
+basicstyle=\singlespacing\ttfamily,%\small\fontfamily{"Courier"}\selectfont,
+keywordstyle=\color{blue}\bfseries,
+commentstyle=\color{purple}\itshape,
+identifierstyle=\color{black},
+stringstyle=\color{red},
+showstringspaces=false,
+showspaces=false,
+numbers=left,
+numberstyle=\footnotesize,
+numbersep=9pt,
+breaklines=true,
+tabsize=2,
+showtabs=false,
+xleftmargin=1cm
+}
+%\counterwithout{lstlisting}{chapter}
+%moved after begin document, otherwise does not compile
+
+%TOC
+%change toc title
+%COMMENT OUT FOR ENGLISH
+%\addto{\captionsfinnish}{\renewcommand*{\contentsname}{Sisällys}}
+%remove dots
+\renewcommand*{\cftdotsep}{\cftnodots}
+%chapter title and page number not in bold
+\renewcommand{\cftchapterfont}{}
+\renewcommand{\cftchapterpagefont}{}
+%sub section in toc
+\setcounter{tocdepth}{2}
+%subsection numbered
+\setcounter{secnumdepth}{2}
+\renewcommand{\tocheadstart}{\vspace*{-15pt}}
+\renewcommand{\printtoctitle}[1]{\fontsize{13pt}{13pt}\bfseries #1}
+\renewcommand{\aftertoctitle}{\vspace*{-22pt}\afterchaptertitle}
+%spacing afer a chapter in toc
+\preto\section{%
+  \ifnum\value{section}=0\addtocontents{toc}{\vskip11pt}\fi
+}
+%spacing afer a section in toc
+\renewcommand{\cftsectionaftersnumb}{\vspace*{-3pt}}
+%spacing afer a subsection in toc
+\renewcommand{\cftsubsectionaftersnumb}{\vspace*{-1pt}}
+%appendix in toc with "Appendix " + num
+\renewcommand*{\cftappendixname}{Appendix\space}
+
+%TITLES
+%chapter title
+\titleformat{\chapter}
+{\fontsize{13pt}{13pt}\bfseries\linespread{1}}
+{\thechapter}{.5cm}{}
+\titlespacing*{\chapter}{0pt}{.32cm}{9pt}
+\titleformat{\section}
+{\fontsize{12pt}{12pt}\linespread{1}}
+{\thesection}{.5cm}{}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titleformat{\subsection}
+{\fontsize{12pt}{12pt}\linespread{1}}
+{\thesubsection}{.5cm}{}
+\titlespacing*{\subsection}{0pt}{14pt}{6pt}
+
+
+%QUOTE
+\renewenvironment{quote}
+  {\list{}{\rightmargin=0pt\leftmargin=1cm\topsep=-10pt}%
+  \item\relax\fontsize{10pt}{10pt}\singlespacing}
+  {\endlist}
+
+%BIBLIOGRAPHY
+%bibliography title to be "references"
+%IN ENGLISH UN/COMMENT THIS 2 LINES
+%\renewcommand\bibname{References}
+\addto{\captionsfinnish}{\renewcommand*{\bibname}{Lähteet}}
+\makeatletter %reference list option change
+\renewcommand\@biblabel[1]{#1\hspace{1cm}} %from [1] to 1 with 1cm gap
+\makeatother %
+\setlength{\bibitemsep}{11pt}
+
+%count the appendices (since the chapter counter is reset after \appendix).
+%! require to complie 2 times
+\regtotcounter{chapter}
+
+%TITLE PAGE
+\newcommand\BackgroundPic{%
+\put(0,0){%
+\parbox[b][\paperheight]{\paperwidth}{%
+\vfill
+\centering
+\includegraphics[width=\paperwidth,height=\paperheight,%
+keepaspectratio]{viiva}%
+\vfill
+}}}
+
+
+\makeatletter
+\renewcommand{\maketitle}{
+\thispagestyle{empty}
+\ThisCenterWallPaper{1}{viiva}
+%
+\vspace*{9.5cm}
+\tn{\LARGE \@author\\[0.75cm]\Huge \@title}\\[3.5cm]
+
+\parbox{.7\linewidth}{\normalsize 
+%IN FINNISH
+%Metropolia Ammattikorkeakoulu\\[2pt]
+%\tutkinto \\[2pt]
+%\kohjelma \\[2pt]
+%Insinöörityö\\[2pt]
+%ddmmyyyydate\today}
+%IN ENGLISH
+Helsinki Metropolia University of Applied Sciences\\[2pt]
+\metropoliadegree \\[2pt]
+\metropoliadegreeprogramme \\[2pt]
+%Thesis\\[2pt]
+\ddmmyyyydate\today}%to be checked date format? 
+
+\ThisLRCornerWallPaper{1}{metropolia}
+%
+\clearpage
+}
+\makeatother
+
+%IN ENGLISH COMMENT THIS 3 LINES
+%\makepagestyle{tiivis}
+%\makeevenhead{tiivis}{}{}{Tiivistelmä}
+%\makeoddhead{tiivis}{}{}{Tiivistelmä}
+
+\makepagestyle{abstract}
+\makeevenhead{abstract}{}{}{Abstract}
+\makeoddhead{abstract}{}{}{Abstract}
+
+%----------------------------------------------------------------------------------------
+%	START OF THE CONTENT
+%----------------------------------------------------------------------------------------
+\begin{document}
+\tracingall
+\counterwithout{lstlisting}{chapter}
+
+\newcommand\tn[1]{\textnormal{#1}}
+\newcommand\reaction[1]{\begin{equation}\ce{#1}\end{equation}}
+
+%page number always on the top right, clear the "chapter/section" head
+\pagestyle{myheadings}
+\markright{}
+%clear chapter "title" foot page
+\makeevenfoot{plain}{}{}{}
+\makeoddfoot{plain}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\maketitle
+\newpage
+
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\pagestyle{abstract}
+\ThisLRCornerWallPaper{1}{footer}
+
+\begin{tabular}{ | p{4,7cm} | p{10,3cm} |}
+  \hline
+  Author(s) \newline
+  Title \newline\newline 
+  Number of Pages \newline
+  Date
+  & 
+  \makeatletter
+  \@author \newline
+  \@title \newline\newline
+  \pageref{LastPage} pages + \total{chapter} appendices \newline %! if no appendices, risk to count total of chapter :D
+  \@date
+  \makeatother
+  \\ \hline
+  Degree & \metropoliadegree
+  \\ \hline
+  Degree Programme & \metropoliadegreeprogramme
+  \\ \hline
+  Specialisation option & \metropoliaspecialisation
+  \\ \hline
+  Instructor(s) & \metropoliainstructors
+  \\ \hline
+  \multicolumn{2}{|p{15cm}|}{
+  Abstract content
+  
+  } \\[14cm] \hline
+  Keywords & \metropoliakeywords
+  \\ \hline
+\end{tabular}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	Acknowledgement ?
+%----------------------------------------------------------------------------------------
+%\chapter*{Acknowledgement}
+%Thanks to my cat
+%\clearpage
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\makeevenhead{plain}{}{}{}
+\makeoddhead{plain}{}{}{}
+\pagestyle{empty} %remove page number in toc (if longer than 2 pages)
+\ThisLRCornerWallPaper{1}{footer}
+\tableofcontents*
+\pagestyle{empty} %remove page number in toc (if longer than 1 pages)
+\ThisLRCornerWallPaper{1}{footer} %add footer image (if longer than 1 page)
+\clearpage
+\pagestyle{plain}
+
+%list of figure, tables comes here...
+
+
+%----------------------------------------------------------------------------------------
+%    Lyhenteet / Abbreviation
+%----------------------------------------------------------------------------------------
+
+\pagestyle{empty}
+\ThisLRCornerWallPaper{1}{footer}
+\setlength{\parskip}{1cm}
+%IN ENGLISH
+%\chapter*{Abbreviation}
+%\cftaddtitleline{toc}{chapter}{Abbreviation}{}
+\begin{table}[h]
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{2}
+\begin{tabular}{l p{12cm}}
+PID & Proportional, Integral, Derivate\\
+OMG & Oh my god\\
+WTF & What the F\\
+TL;DR & Too long, didn't read\\
+\end{tabular}
+\end{table}
+
+\newpage
+
+%page number always on top right; also for chapter "title" page
+\pagestyle{plain}
+\makeevenhead{plain}{}{}{\thepage}
+\makeoddhead{plain}{}{}{\thepage}
+
+\setcounter{page}{1} %page 1 should be Introduction
+
+%----------------------------------------------------------------------------------------
+%	CONTENT
+%----------------------------------------------------------------------------------------
+
+\chapter{Introduction}
+Ghantt chart
+Flow charts
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+\section{Section}
+Here is an example how to add biblio entry \cite{kopka:guide} using the \textquotedblleft cite\textquotedblright ~\cite[section 4.2]{tobias:book}. Note that a paragraph is added by forcing a new line.
+
+And let also try the figure (see figure \vref{fig:latex-cover}) and internal reference (with label and ref or vref). The reference can be done to any label, for example why not to appendix \ref{appx:first} or to appendix \ref{appx:second}? To note, \LaTeX{} will place the figure to the best place (except with forcing). Let them float till the final of final edit\ldots ~then force them to not break a paragraph.%hugly hack... I'm sorry
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=7.1cm]{LaTeX_cover}
+  \caption{\LaTeX{} cover image (Copied from wikibooks.org (2012) \cite{wikibooks:latex}).}
+  \label{fig:latex-cover}
+\end{figure}
+
+Let's also try a long quote:
+From the Universal Declaration of Human Rights:
+\begin{quote}
+(1) Everyone has the right to education. Education shall be free, at least in the elementary and fundamental stages. Elementary education shall be compulsory. Technical and professional education shall be made generally available and higher education shall be equally accessible to all on the basis of merit.
+
+(2) Education shall be directed to the full development of the human personality and to the strengthening of respect for human rights and fundamental freedoms. It shall promote understanding, tolerance and friendship among all nations, racial or religious groups, and shall further the activities of the United Nations for the maintenance of peace.
+
+(3) Parents have a prior right to choose the kind of education that shall be given to their children. \cite[article 26]{un:udhr}
+\end{quote}
+
+\textit{Quisque augue} est, \textbf{elementum ac porttitor} non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit.\vspace{-17pt} 
+\begin{itemize}
+\item \textbf{A small hack} with list
+\item is to force the vertical space 
+\item before and after the list
+\end{itemize}
+\vspace{-17pt} Nullam egestas enim at odio pellentesque bibendum. 
+
+\subsection{Subsection}
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\subsection{Subsection with Math}
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+Ionivahvuus lasketaan kaavalla.
+\begin{align}
+I&=\frac{1}{2}\cdot\sum z_i^2c_i \\
+z_i&= \tn{ionin varausluku} \\
+c_i&= \tn{ionin konsentraatio}
+\end{align}
+Aktiivisuuskerroin $\gamma_\pm$ lasketaan kaavalla.
+\begin{align}
+\log \gamma_\pm &= -\left|z_+\cdot z_-\right|A\cdot I^{\frac{1}{2}} \\
+A &= \tn{0,509 (lämpötilassa 25\celsius}) \\
+I &= \tn{ionivahvuus} \\
+z &= \tn{ionien varaus}
+\end{align}
+
+\section{Section with Source Code}
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\vspace{-22pt}\begin{lstlisting}[language=PHP,caption={Descriptive Caption Text},label=testphp] 
+
+<?php
+$userName = $_POST["usern"];
+//maybe not?
+if ($userName){
+	?>
+	<h2>Hello <?php echo $userName; ?>!</h2>
+	<p>your message got received.</p>
+	<?php
+}
+?>
+\end{lstlisting}\vspace{-22pt}
+
+
+As see in listing \ref{testphp}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\section{Section with Table}
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\begin{table}[h]
+  \centering
+  \caption{Some data}
+  %IMPORTANT the caption must be before the tabular, so it will be on top of the table (there are other tricks to force it on top; but this one is straitforward).
+  \begin{tabular}{| l | >{\centering\arraybackslash}p{.5\textwidth} |}
+    \hline
+    Test 1 & test 1234 test \\
+    \hline
+    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the column size :( \\
+    \hline
+  \end{tabular}
+  \label{table:some_data}
+\end{table}
+
+
+As presented in table \ref{table:some_data}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\begin{table}[h]
+  \centering
+  \caption{Another table with tabularx}
+  \begin{tabularx}{.95\textwidth}{| l | >{\centering\arraybackslash} X |}
+    \hline
+    Test 1 & test 1234 test \\
+    \hline
+    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the table size :( \\
+    \hline
+  \end{tabularx}
+  \label{table:some_data2}
+\end{table}
+
+As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\chapter{Background}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\chapter{Third Chapter}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\section{Section}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+\section{Section}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+
+%----------------------------------------------------------------------------------------
+%   BIBLIOGRAPHY 
+%----------------------------------------------------------------------------------------
+
+\bibliographystyle{vancouver}
+%line space
+%\singlespacing %removed otherwise the appendix are also single space
+\begin{flushleft}
+\begin{singlespacing}
+\bibliography{biblio}
+\end{singlespacing}
+\end{flushleft}
+
+%for conting the pages
+\label{LastPage}~
+
+
+%----------------------------------------------------------------------------------------
+%   APPENDICES 
+%----------------------------------------------------------------------------------------
+%avoid that the last page of bib get appendix header
+\clearpage
+%start appendix
+\appendix
+%no page number for appendix in table of content
+\addtocontents{toc}{\cftpagenumbersoff{chapter}}
+%appendix sections and subsections not in table of content
+\settocdepth{chapter}
+%add "Appendices" in the table of content
+\addappheadtotoc
+%force smaller vertical spacing in table of content
+%!!! There can be some fun depending if the appendices have (sub)sections or not :D
+% You will have to play with these numbers and eventually copy the \pretocmd line on before some \chapter and force another number.
+\addtocontents{toc}{\vspace{11pt}}
+\pretocmd{\chapter}{\addtocontents{toc}{\protect\vspace{-24pt}}}{}{}
+
+%have Appendix 1 (instead of Appendix A)
+\renewcommand{\thechapter}{\arabic{chapter}} 
+
+%each appendix restart page num to one
+\setcounter{page}{1}
+%special counter for appendix TODO: this is a ugly quick hack :( Should find a better way to count the page per appendix.
+\newtotcounter{appx1}
+%overwrite the header
+\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
+\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
+
+\chapter{My First Appendix}\label{appx:first}
+
+Note that every appendix will be a chapter.
+
+Sorry for the ugly hack on how to count the total pages per appendix.
+
+
+Of course with section and subsection.
+
+\section{Appendix Section}
+
+And you can cite \cite{tobias:book} stuff, it will go into the main bibliography.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+
+\subsection{With a Subsection}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+
+%TODO with my ugly hack, for every appendix you will have to make this 
+\clearpage % avoid that the last page of previous appendix get this header
+\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
+\newtotcounter{appx2} % to have the total for this appendix and not the previous one.
+%overwrite the header
+\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+
+\chapter{My Second Appendix}\label{appx:second}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+
+Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+
+\end{document}

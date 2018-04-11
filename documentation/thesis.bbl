@@ -1,0 +1,24 @@
+\begin{thebibliography}{1}
+
+\bibitem{kopka:guide}
+{Kopka, Helmut}.
+\newblock Guide to \LaTeX{}.
+\newblock Boston: Addison-Wesley; 2004.
+
+\bibitem{tobias:book}
+{Tobias Oetiker}, {Hubert Partl}, {Irene Hyna}, {Elisabeth Schlegl}.
+\newblock The {N}ot {S}o {S}hort {I}ntroduction to \LaTeX{}2e.
+\newblock Switzerland; 2011.
+
+\bibitem{wikibooks:latex}
+\LaTeX{}.
+\newblock {wikibooks.org}; 2012.
+\newblock Available from: \url{http://en.wikibooks.org/wiki/LaTeX} [cited
+  November~05, 2012].
+
+\bibitem{un:udhr}
+international community UN.
+\newblock The Universal Declaration of Human Rights. 1948;Available from:
+  \url{http://www.un.org/en/documents/udhr}.
+
+\end{thebibliography}
