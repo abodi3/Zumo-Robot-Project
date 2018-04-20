@@ -74,7 +74,7 @@ void reflectance_handler(void)
     }
     
     
-    Control_Reg_1_Write(1);
+    Timer_Reset_Write(1);
     
     R1_SetDriveMode(PIN_DM_STRONG);
     R1_Write(1);
@@ -88,7 +88,7 @@ void reflectance_handler(void)
     L2_Write(1);
     L1_SetDriveMode(PIN_DM_STRONG);
     L1_Write(1);
-    Control_Reg_1_Write(0);
+    Timer_Reset_Write(0);
 
     CyDelayUs(10);
     R1_SetDriveMode(PIN_DM_DIG_HIZ);
