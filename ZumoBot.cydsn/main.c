@@ -83,17 +83,18 @@ int main()
 
 // Main program entry point //
 #if 1
-// PID controll - Under development
-/*
+// P controll - Under development
+/* with sharp turning
  * 
  * 
  * 
  * 
  */
 
-#define TIMELIMIT 20000
-#define BLACK_VALUE 20000
-#define WHITE_VALUE 4000
+#define TIMELIMIT 20000                                 // Robot shutdown time
+#define BLACK_VALUE 19000                               // Black threshold
+#define WHITE_VALUE 5000                                // White threshold
+#define DEBUG_MODE 1
 
 int main()
 {
@@ -107,7 +108,7 @@ int main()
     int16 adcresult =0;
     float volts = 0.0;
 
-    printf("\nBoot\n");
+    if (DEBUG_MODE) printf("\nBoot\n");
 
     struct sensors_ ref;
     
@@ -124,53 +125,56 @@ int main()
     
     reflectance_start();
     
-    uint timer = 0;                                 // Time measurement
-    uint deltatime = 2;
-    float leftspeed = 0;                              // Left track speed in %
-    float rightspeed = 0;                             // Right track speed in %
-    const float leftadjust = 1.0;
-    const float rightadjust = 0.96;
-    const float travelspeed = 200;                    // Maximum travel speed
+    uint timer = 0;                                     // Time measurement (counts loop cycles)
+    uint deltatime = 2;                                 // Waiting time after every loop cycle
+    float leftspeed = 0;                                // Left track speed in %
+    float rightspeed = 0;                               // Right track speed in %
+    const float leftadjust = 1.0;                       // Left track adjusment (Adjust value until robot goes straight)
+    const float rightadjust = 0.96;                     // Right track adjustment (Adjust value until robot goes straight)
+    const float travelspeed = 255;                      // Maximum travel speed (255 is the largest accepted value by PWM)
 
-    const uint8 minimum_speed = 40;                   // Speed adjustment for larger corrections
-
-    uint8 actual_leftspeed = 0;
-    uint8 actual_rightspeed = 0;
-    float error;
-    uint8 line_counter = 0;                         // Crossing lines pass. Zumo stops after the 3rd line
-    bool line_found = false;                        // If zumo have found a crossing line
+    const uint8 minimum_speed = 40;                     // Minimum travel speed (lower values rounded to this value)
+    uint8 actual_leftspeed = 0;                         // This value is calculated from error and written to PWM register
+    uint8 actual_rightspeed = 0;                        // This value is calculated from error and written to PWM register
+    float error;                                        // Error rate (Deviation from track center line)
+    const float Kp = travelspeed * 2.1f;                   // Proportion constant (Error rate multiplied with this constant)
+    uint8 line_counter = 0;                             // Count crosslines. Zumo stops at the 3rd line
+    bool line_found = false;                            // Set if zumo have found a crossline
+    bool sharpturn = false;
     
-    CyDelay(2000);                                  // Place the Zumo at startline
+    CyDelay(2000);                                      // Initial wait after turn on
 
-    motor_start();                                  // Go to the start line
+    motor_start();                                      // Go to the start line
     reflectance_read(&ref);
     while (ref.l3 < 15000 && ref.r3 < 15000)
     {
-        MotorDirLeft_Write(0);      // set LeftMotor forward mode
+        MotorDirLeft_Write(0);                          // set LeftMotor forward mode
         PWM_WriteCompare1( 40 );
-        MotorDirRight_Write(0);      // set LeftMotor forward mode
+        MotorDirRight_Write(0);                         // set LeftMotor forward mode
         PWM_WriteCompare2( 40 );
         CyDelay(10);
         reflectance_read(&ref);
     }
-    MotorDirLeft_Write(0);      // set LeftMotor forward mode
+                                                        // If start line has been found stop
+    MotorDirLeft_Write(0);                              // set LeftMotor forward mode
     PWM_WriteCompare1( 0 );
-    MotorDirRight_Write(0);      // set LeftMotor forward mode
+    MotorDirRight_Write(0);                             // set LeftMotor forward mode
     PWM_WriteCompare2( 0 );
-    motor_stop();                                   // Stop at startline
+    motor_stop();                                       // Stop at startline
     
-    IR_flush(); // clear IR receive buffer
-    printf("Buffer cleared\n");
+                                                        // Wait for start IR signal
+    IR_flush();                                         // clear IR receive buffer
+    if (DEBUG_MODE) printf("Buffer cleared\n");
     
-    IR_wait(); // wait for IR command               Wait for start IR signal
-    printf("IR command received\n");
+    IR_wait();                                          // wait for IR command
+    if (DEBUG_MODE) printf("IR command received\n");
     
     for(;;)
     {
-        // Check battery status
+                                                        // Check battery status
         ADC_Battery_StartConvert();
         if(ADC_Battery_IsEndConversion(ADC_Battery_WAIT_FOR_RESULT)) {   // wait for get ADC converted value
-            adcresult = ADC_Battery_GetResult16(); // get the ADC value (0 - 4095)
+            adcresult = ADC_Battery_GetResult16();      // get the ADC value (0 - 4095)
             // convert value to Volts
             // you need to implement the conversion
             volts = (float)adcresult / 4095 * 5;
@@ -179,16 +183,16 @@ int main()
             {
                 BatteryLed_Write(1);
                 BatteryLed_Status = true;
-                motor_stop();               // Failsafe: motor stoped if voltage gets too low
+                motor_stop();                           // Failsafe: motor stoped if voltage gets too low
             }
             // Print both ADC results and converted value
             //printf("%d %f\r\n",adcresult, volts);
         }
-        // Check battery status - End
+                                                        // Check battery status - End
         
-        if (!Motor_Status && timer <= TIMELIMIT)    // ...go!
+        if (!Motor_Status && timer <= TIMELIMIT)        // ...go!
         {
-            motor_start();              // motor start
+            motor_start();                              // motor start
             Motor_Status = true;
             leftspeed = 100;
             rightspeed = 100;
@@ -197,113 +201,61 @@ int main()
         
         // read digital values that are based on threshold. 0 = white, 1 = black
         // when blackness value is over threshold the sensors reads 1, otherwise 0
-        reflectance_read(&ref);      //print out 0 or 1 according to results of reflectance period
+        reflectance_read(&ref);                         //print out 0 or 1 according to results of reflectance period
         //printf("%5d %5d %5d %5d %5d %5d \r\n", dig.l3, dig.l2, dig.l1, dig.r1, dig.r2, dig.r3);
         //print out 0 or 1 according to results of reflectance period
 
-        error = (float)((ref.l1 + ref.r1)/2) / BLACK_VALUE;
+                                                        // Calculate error rate and normalize between 0.0 and 1.0
+        error = (float)(BLACK_VALUE - ((ref.l1 + ref.r1)/2)) / (BLACK_VALUE - WHITE_VALUE);
         if (error > 1.0f)
         {
             error = 1.0f;
         }
-        error = 1.0f - error;
-        
-        printf("%d %d Error: %f ", ref.l1, ref.r1, error);
-        
-        const float Kp = travelspeed * 2;
-        
-        if (ref.l1 > ref.r1)
+        if (error < 0.0f)
         {
-            leftspeed = 100 - (Kp * error);
-            rightspeed = 100;
-            printf("LEFT  ");
-        }
-        else
-        {
-            rightspeed = 100 - (Kp * error);
-            leftspeed = 100;
-            printf("RIGHT ");
+            error = 0.0f;
         }
         
-        printf("Ls: %f Rs: %f ", leftspeed, rightspeed);
+        if (DEBUG_MODE) printf("%d %d Error: %f ", ref.l1, ref.r1, error);
         
-        /*
-        if (!(dig.l1 || dig.r1))    // Left - white Right - white Stop
+        if (error >= 0.99f && !sharpturn)                             // If the track is lost turn on sharpturn mode
         {
-            leftspeed = 0;
-            rightspeed = 0;
-            if (left_status == 1)
+            sharpturn = true;
+            if (leftspeed > rightspeed)
             {
-                MotorDirLeft_Write(1);      // set LeftMotor forward mode
-                MotorDirRight_Write(0);     // set RightMotor forward mode
-                PWM_WriteCompare1(100); 
-                PWM_WriteCompare2(100);
-                while (!(dig.r1))
-                {
-                    reflectance_digital(&dig);
-                }
-                left_status = 0;
-                right_status = 0;
-                left_time = timer;
-                right_time = timer;
-                
-                leftspeed = travelspeed;
-                rightspeed = travelspeed;
+                leftspeed = 100;
+                rightspeed = -100;
             }
             else
-            if (right_status == 1)
             {
-                MotorDirLeft_Write(0);      // set LeftMotor forward mode
-                MotorDirRight_Write(1);     // set RightMotor forward mode
-                PWM_WriteCompare1(100); 
-                PWM_WriteCompare2(100);
-                while (!(dig.l1))
-                {
-                    reflectance_digital(&dig);
-                }
-                left_status = 0;
-                right_status = 0;
-                left_time = timer;
-                right_time = timer;
-                
-                leftspeed = travelspeed;
-                rightspeed = travelspeed;
+                leftspeed = -100;
+                rightspeed = 100;
             }
-
         }
-        */
-        /*
-        if (timer > (left_time > right_time ? left_time : right_time) + 1000)
+        
+        if (sharpturn && (error <= 0.1f))               // If sharpturn mode is on but track is found again
         {
-            if (dig.l3 == 1)
+            sharpturn = false;                          // turn off sharpturn mode
+        }
+        
+        if (!sharpturn)                                 // If sharpturn mode off follow the track
+        {
+            if (ref.l1 > ref.r1)    // P-control calculation
             {
-                left_status = 1;
-                left_time = timer;
+                leftspeed = 100 - (Kp * error);
+                rightspeed = 100;
+                if (DEBUG_MODE) printf("LEFT  ");
             }
-            if (dig.r3 == 1)
+            else
             {
-                right_status = 1;
-                right_time = timer;
-            }
-            
-            if (dig.l3 == 0)
-            {
-                if (timer > (left_time + 500))
-                {
-                left_status = 0;
-                left_time = timer;
-                }
-            }
-            if (dig.r3 == 0)
-            {
-                if (timer > (right_time + 500))
-                {
-                right_status = 1;
-                right_time = timer;
-                }
+                rightspeed = 100 - (Kp * error);
+                leftspeed = 100;
+                if (DEBUG_MODE) printf("RIGHT ");
             }
         }
-        */
+        
+        if (DEBUG_MODE) printf("Ls: %f Rs: %f ", leftspeed, rightspeed);
+        
         
         if (ref.l3 >= 15000 && ref.r3 >= 15000)    // All sensors black: found line
         {
@@ -328,25 +280,37 @@ int main()
             Motor_Status = false;
         }
         
-        // Set speed for the motors
-        if (leftspeed < 0)
-        
-        {actual_leftspeed = (uint8) -1 * travelspeed * leftadjust * leftspeed / 100;}
+        if (leftspeed < 0)              // Set speed for left motor
+        {
+            actual_leftspeed = (uint8) (travelspeed * leftadjust * leftspeed * -1 / 100);
+        }
         else
-        {actual_leftspeed = travelspeed * leftadjust * leftspeed / 100;}
+        {
+            actual_leftspeed = (uint8) (travelspeed * leftadjust * leftspeed / 100);
+        }
         
-        if (actual_leftspeed < minimum_speed) actual_leftspeed = minimum_speed;
+        if (actual_leftspeed < minimum_speed)
+        {
+            actual_leftspeed = minimum_speed;
+        }
         
-        if (rightspeed < 0)
-        {actual_rightspeed = (uint8) -1 * travelspeed * rightadjust * rightspeed / 100;}
+        if (rightspeed < 0)             // Set speed for right motor
+        {
+            actual_rightspeed = (uint8) (travelspeed * rightadjust * rightspeed * -1 / 100);
+        }
         else
-        {actual_rightspeed = travelspeed * rightadjust * rightspeed / 100;}
+        {
+            actual_rightspeed = (uint8) (travelspeed * rightadjust * rightspeed / 100);
+        }
         
-        if (actual_rightspeed < minimum_speed) actual_rightspeed = minimum_speed;
+        if (actual_rightspeed < minimum_speed)
+        {
+            actual_rightspeed = minimum_speed;
+        }
         
         if (leftspeed < 0)
         {
-            MotorDirLeft_Write(1);
+            MotorDirLeft_Write(1);      // set LeftMotor backward mode
             PWM_WriteCompare1(actual_leftspeed ); 
         }
         else
@@ -357,7 +321,7 @@ int main()
         }
         if (rightspeed < 0)
         {
-            MotorDirRight_Write(1);
+            MotorDirRight_Write(1);     // set RightMotor backward mode
             PWM_WriteCompare2(actual_rightspeed );
         }
         else
@@ -366,16 +330,7 @@ int main()
             PWM_WriteCompare2( actual_rightspeed );
         }
         
-        
-        printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
-        
-        {
-        //motor_forward(speed, 0);
-        //motor_forward(100,2000);     // moving forward
-        //motor_turn(200,50,2000);     // turn
-        //motor_turn(50,200,2000);     // turn
-        //motor_backward(100,2000);    // moving backward
-        }
+        if (DEBUG_MODE) printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
         
         CyDelay(deltatime);
         timer += deltatime;
@@ -387,13 +342,14 @@ int main()
 /***************************************************************************************/
 
 #if 0
-// P controll - Basic working version
-// Unless speed set above 200
+// P controll + Basic corner turn
 /*
  */
 
 #define TIMELIMIT 20000
-#define BLACK_VALUE 20000
+#define BLACK_VALUE 19000
+#define WHITE_VALUE 5000
+#define DEBUG_MODE 1
 
 int main()
 {
@@ -407,7 +363,7 @@ int main()
     int16 adcresult =0;
     float volts = 0.0;
 
-    printf("\nBoot\n");
+    if (DEBUG_MODE) printf("\nBoot\n");
 
     struct sensors_ ref;
     
@@ -424,53 +380,56 @@ int main()
     
     reflectance_start();
     
-    uint timer = 0;                                 // Time measurement
-    uint deltatime = 2;
-    float leftspeed = 0;                              // Left track speed in %
-    float rightspeed = 0;                             // Right track speed in %
-    const float leftadjust = 1.0;
-    const float rightadjust = 0.96;
-    const float travelspeed = 200;                    // Maximum travel speed
+    uint timer = 0;                                     // Time measurement (counts loop cycles)
+    uint deltatime = 2;                                 // Waiting time after every loop cycle
+    float leftspeed = 0;                                // Left track speed in %
+    float rightspeed = 0;                               // Right track speed in %
+    const float leftadjust = 1.0;                       // Left track adjusment (Adjust value until robot goes straight)
+    const float rightadjust = 0.96;                     // Right track adjustment (Adjust value until robot goes straight)
+    const float travelspeed = 255;                      // Maximum travel speed (255 is the largest accepted value by PWM)
 
-    const uint8 minimum_speed = 40;                   // Speed adjustment for larger corrections
-
-    uint8 actual_leftspeed = 0;
-    uint8 actual_rightspeed = 0;
-    float error;
-    uint8 line_counter = 0;                         // Crossing lines pass. Zumo stops after the 3rd line
-    bool line_found = false;                        // If zumo have found a crossing line
+    const uint8 minimum_speed = 40;                     // Minimum travel speed (lower values rounded to this value)
+    uint8 actual_leftspeed = 0;                         // This value is calculated from error and written to PWM register
+    uint8 actual_rightspeed = 0;                        // This value is calculated from error and written to PWM register
+    float error;                                        // Error rate (Deviation from track center line)
+    const float Kp = travelspeed * 2.1f;                   // Proportion constant (Error rate multiplied with this constant)
+    uint8 line_counter = 0;                             // Count crosslines. Zumo stops at the 3rd line
+    bool line_found = false;                            // Set if zumo have found a crossline
+    bool sharpturn = false;
     
-    CyDelay(2000);                                  // Place the Zumo at startline
+    CyDelay(2000);                                      // Initial wait after turn on
 
-    motor_start();                                  // Go to the start line
+    motor_start();                                      // Go to the start line
     reflectance_read(&ref);
     while (ref.l3 < 15000 && ref.r3 < 15000)
     {
-        MotorDirLeft_Write(0);      // set LeftMotor forward mode
+        MotorDirLeft_Write(0);                          // set LeftMotor forward mode
         PWM_WriteCompare1( 40 );
-        MotorDirRight_Write(0);      // set LeftMotor forward mode
+        MotorDirRight_Write(0);                         // set LeftMotor forward mode
         PWM_WriteCompare2( 40 );
         CyDelay(10);
         reflectance_read(&ref);
     }
-    MotorDirLeft_Write(0);      // set LeftMotor forward mode
+                                                        // If start line has been found stop
+    MotorDirLeft_Write(0);                              // set LeftMotor forward mode
     PWM_WriteCompare1( 0 );
-    MotorDirRight_Write(0);      // set LeftMotor forward mode
+    MotorDirRight_Write(0);                             // set LeftMotor forward mode
     PWM_WriteCompare2( 0 );
-    motor_stop();                                   // Stop at startline
+    motor_stop();                                       // Stop at startline
     
-    IR_flush(); // clear IR receive buffer
-    printf("Buffer cleared\n");
+                                                        // Wait for start IR signal
+    IR_flush();                                         // clear IR receive buffer
+    if (DEBUG_MODE) printf("Buffer cleared\n");
     
-    IR_wait(); // wait for IR command               Wait for start IR signal
-    printf("IR command received\n");
+    IR_wait();                                          // wait for IR command
+    if (DEBUG_MODE) printf("IR command received\n");
     
     for(;;)
     {
-        // Check battery status
+                                                        // Check battery status
         ADC_Battery_StartConvert();
         if(ADC_Battery_IsEndConversion(ADC_Battery_WAIT_FOR_RESULT)) {   // wait for get ADC converted value
-            adcresult = ADC_Battery_GetResult16(); // get the ADC value (0 - 4095)
+            adcresult = ADC_Battery_GetResult16();      // get the ADC value (0 - 4095)
             // convert value to Volts
             // you need to implement the conversion
             volts = (float)adcresult / 4095 * 5;
@@ -479,52 +438,75 @@ int main()
             {
                 BatteryLed_Write(1);
                 BatteryLed_Status = true;
-                motor_stop();               // Failsafe: motor stoped if voltage gets too low
+                motor_stop();                           // Failsafe: motor stoped if voltage gets too low
             }
             // Print both ADC results and converted value
             //printf("%d %f\r\n",adcresult, volts);
         }
-        // Check battery status - End
+                                                        // Check battery status - End
         
-        if (!Motor_Status && timer <= TIMELIMIT)    // ...go!
+        if (!Motor_Status && timer <= TIMELIMIT)        // ...go!
         {
-            motor_start();              // motor start
+            motor_start();                              // motor start
             Motor_Status = true;
             leftspeed = 100;
             rightspeed = 100;
         }
+
         
         // read digital values that are based on threshold. 0 = white, 1 = black
         // when blackness value is over threshold the sensors reads 1, otherwise 0
-        reflectance_read(&ref);      //print out 0 or 1 according to results of reflectance period
+        reflectance_read(&ref);                         //print out 0 or 1 according to results of reflectance period
         //printf("%5d %5d %5d %5d %5d %5d \r\n", dig.l3, dig.l2, dig.l1, dig.r1, dig.r2, dig.r3);
         //print out 0 or 1 according to results of reflectance period
 
-        error = (float)((ref.l1 + ref.r1)/2) / BLACK_VALUE;
+                                                        // Calculate error rate and normalize between 0.0 and 1.0
+        error = (float)(BLACK_VALUE - ((ref.l1 + ref.r1)/2)) / (BLACK_VALUE - WHITE_VALUE);
         if (error > 1.0f)
+        { error = 1.0f;}
+        if (error < 0.0f)
+        { error = 0.0f;}
+        
+        if (DEBUG_MODE) printf("%d %d Error: %f ", ref.l1, ref.r1, error);
+        
+        if (error >= 0.99f && !sharpturn)                             // If the track is lost turn on sharpturn mode
         {
-            error = 1.0f;
+            sharpturn = true;
+            if (leftspeed > rightspeed)
+            {
+                leftspeed = 100;
+                rightspeed = -100;
+            }
+            else
+            {
+                leftspeed = -100;
+                rightspeed = 100;
+            }
         }
-        error = 1.0f - error;
         
-        printf("%d %d Error: %f ", ref.l1, ref.r1, error);
-        
-        const float Kp = travelspeed * 2.0f;
-        
-        if (ref.l1 > ref.r1)
+        if (sharpturn && (error <= 0.1f))               // If sharpturn mode is on but track is found again
         {
-            leftspeed = 100 - (Kp * error);
-            rightspeed = 100;
-            printf("LEFT  ");
-        }
-        else
-        {
-            rightspeed = 100 - (Kp * error);
-            leftspeed = 100;
-            printf("RIGHT ");
+            sharpturn = false;                          // turn off sharpturn mode
         }
         
-        printf("Ls: %f Rs: %f ", leftspeed, rightspeed);
+        if (!sharpturn)                                 // If sharpturn mode off follow the track
+        {
+            if (ref.l1 > ref.r1)    // P-control calculation
+            {
+                leftspeed = 100 - (Kp * error);
+                rightspeed = 100;
+                if (DEBUG_MODE) printf("LEFT  ");
+            }
+            else
+            {
+                rightspeed = 100 - (Kp * error);
+                leftspeed = 100;
+                if (DEBUG_MODE) printf("RIGHT ");
+            }
+        }
+        
+        if (DEBUG_MODE) printf("Ls: %f Rs: %f ", leftspeed, rightspeed);
+        
         
         if (ref.l3 >= 15000 && ref.r3 >= 15000)    // All sensors black: found line
         {
@@ -541,7 +523,7 @@ int main()
         }
         
         
-        if (Motor_Status && (timer > TIMELIMIT || line_counter >= 2) )  // If reach target / run out of time: Stop motors
+        if (Motor_Status && (timer > TIMELIMIT || line_counter >= 3) )  // If reach target / run out of time: Stop motors
         {
             motor_stop();               // motor stop
             leftspeed = 0;
@@ -549,32 +531,37 @@ int main()
             Motor_Status = false;
         }
         
-        // Set speed and direction for the motors based on leftspeed % / rightspeed %
-        if (leftspeed < 0)
-        {actual_leftspeed = (uint8) -1 * travelspeed * leftadjust * leftspeed / 100;}
-        else
-        {actual_leftspeed = travelspeed * leftadjust * leftspeed / 100;}
-        
-        if (actual_leftspeed < minimum_speed) actual_leftspeed = minimum_speed;
-        if (leftspeed == 0)
+        if (leftspeed < 0)              // Set speed for left motor
         {
-            actual_leftspeed = 0;
+            actual_leftspeed = (uint8) (travelspeed * leftadjust * leftspeed * -1 / 100);
+        }
+        else
+        {
+            actual_leftspeed = (uint8) (travelspeed * leftadjust * leftspeed / 100);
         }
         
-        if (rightspeed < 0)
-        {actual_rightspeed = (uint8) -1 * travelspeed * rightadjust * rightspeed / 100;}
-        else
-        {actual_rightspeed = travelspeed * rightadjust * rightspeed / 100;}
-        
-        if (actual_rightspeed < minimum_speed) actual_rightspeed = minimum_speed;
-        if (rightspeed == 0)
+        if (actual_leftspeed < minimum_speed)
         {
-            actual_rightspeed = 0;
+            actual_leftspeed = minimum_speed;
+        }
+        
+        if (rightspeed < 0)             // Set speed for right motor
+        {
+            actual_rightspeed = (uint8) (travelspeed * rightadjust * rightspeed * -1 / 100);
+        }
+        else
+        {
+            actual_rightspeed = (uint8) (travelspeed * rightadjust * rightspeed / 100);
+        }
+        
+        if (actual_rightspeed < minimum_speed)
+        {
+            actual_rightspeed = minimum_speed;
         }
         
         if (leftspeed < 0)
         {
-            MotorDirLeft_Write(1);
+            MotorDirLeft_Write(1);      // set LeftMotor backward mode
             PWM_WriteCompare1(actual_leftspeed ); 
         }
         else
@@ -585,7 +572,7 @@ int main()
         }
         if (rightspeed < 0)
         {
-            MotorDirRight_Write(1);
+            MotorDirRight_Write(1);     // set RightMotor backward mode
             PWM_WriteCompare2(actual_rightspeed );
         }
         else
@@ -594,10 +581,11 @@ int main()
             PWM_WriteCompare2( actual_rightspeed );
         }
         
-        printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
+        if (DEBUG_MODE) printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
         
         CyDelay(deltatime);
         timer += deltatime;
+        //forward_counter += deltatime;
     }                                       // Infinite loop end
 }                                           // Main function end
 
@@ -1381,9 +1369,11 @@ int main()
         // read raw sensor values
         reflectance_read(&ref);
         printf("%5d %5d %5d %5d %5d %5d %5d ", ref.l3, ref.l2, ref.l1, ref.r1, ref.r2, ref.r3, (ref.l1 + ref.r1)/2);       // print out each period of reflectance sensors
-        error = (float)((ref.l1 + ref.r1)/2) / 20000;
+        error = (float)(19000 - ((ref.l1 + ref.r1)/2)) / (19000 - 5000);
         if (error > 1.0f)
         { error = 1.0f;}
+        if (error < 0.0f)
+        { error = 0.0f;}
         printf("%f \r\n", error);
         
         // read digital values that are based on threshold. 0 = white, 1 = black
