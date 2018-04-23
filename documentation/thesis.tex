@@ -332,7 +332,7 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
   Instructor(s) & \metropoliainstructors
   \\ \hline
   \multicolumn{2}{|p{15cm}|}{
-  	Projects aim is to develop an embedded software for Zumo robot controll. This documentation covers the theoretical and practical aspects required during development. Necessary mathematical, physical and electronic concepts also presented.
+  	Project's aim is to develop an embedded software for Zumo robot control. This documentation covers the theoretical and practical principles required during development. Necessary mathematical, physical and electronic concepts also presented.
   } \\[14cm] \hline
   Keywords & \metropoliakeywords
   \\ \hline
@@ -399,22 +399,25 @@ PWM & Pulse-width modulation\\
 %	CONTENT
 %----------------------------------------------------------------------------------------
 \chapter{Introduction}
+Project's aim is to develop embedded software which controls the Zumo robot behavior, manage its hardware and perform given predefined tasks. No generic programming necessary, no ad-hoc behavior expected from the robot. Program change performed by reprogramming the firmware of the robot with a different program.
 
 \chapter{Background}
 
-This chapter gives insight to technical background
+This chapter gives insight and explanation to technical background.
 
-\section{Electronic basics}
+\section{Pulse Width Modulation}
+Pulse Width Modulation (PWM) is a modulation method used to encode information on a carrier signal. PWM is mainly used to empower electronic devices. As the modulated signal alternates between 0 and 1 the device gets an average power instead of continuous output. As a result the devices work in transition between OFF and ON states.\\
+Duty cycle means the amount of ON state in a full cycle. The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See Appendix 2.)\\
+This Zumo project has it preset in approx. 390 Hz (1 cycle is 2.56 ms long).\cite{wikipedia:PWM}
 
-\subsection{Pulse Width Modulation}
-
-\subsection{Infra red sensor}
+\section{Infra red sensor}
 Infrared light sensor operation.
 
 \section{Cypress CY8 modeling kit}
+Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware write performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.
 
 \section{Zumo robot}
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
+Zumo by Polulu.
 
 \subsection{Battery management}
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
@@ -632,6 +635,8 @@ Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit ma
 \makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
 
 \chapter{Physics}\label{appx:second}
+\section{Frequency}
+Frequency means for periodical functions (e.g. signals) the number of periods completed in 1 second. Unit of frequency is Hertz (Hz). For example 1 period in 1 second is 1 Hz. 10 period in 1 second is 10 Hz.
 
 \section{Kinematics}
 
