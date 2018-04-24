@@ -66,7 +66,8 @@ Keijo Länsikunnas, Senior Lecturer}
 %\usepackage[utf8]{inputenc}
 %\usepackage[ansinew]{inputenc}
 %\usepackage[T1]{fontenc}
-\usepackage[finnish]{babel} %IN ENGLISH, you can comment out or change this depending on your language
+%\usepackage[finnish]{babel} %IN ENGLISH, you can comment out or change this depending on your language
+\usepackage[american]{babel} %IN ENGLISH, you can comment out or change this depending on your language
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -180,7 +181,7 @@ xleftmargin=1cm
 %change toc title
 %COMMENT OUT FOR ENGLISH
 %\addto{\captionsfinnish}{\renewcommand*{\contentsname}{Sisällys}}
-%\renewcommand*{\contentsname}{Table of contents}
+\renewcommand*{\contentsname}{Table of contents}
 %remove dots
 \renewcommand*{\cftdotsep}{\cftnodots}
 %chapter title and page number not in bold
@@ -229,8 +230,9 @@ xleftmargin=1cm
 %BIBLIOGRAPHY
 %bibliography title to be "references"
 %IN ENGLISH UN/COMMENT THIS 2 LINES
-%\renewcommand\bibname{References}
-\addto{\captionsfinnish}{\renewcommand*{\bibname}{Lähteet}}
+\renewcommand\bibname{References}
+%\addto{\captionsfinnish}{\renewcommand*{\bibname}{References}}
+%\addto{\captionsfinnish}{\renewcommand*{\bibname}{Lähteet}}
 \makeatletter %reference list option change
 \renewcommand\@biblabel[1]{#1\hspace{1cm}} %from [1] to 1 with 1cm gap
 \makeatother %
@@ -407,24 +409,33 @@ This chapter gives insight and explanation to technical background.
 
 \section{Pulse Width Modulation}
 Pulse Width Modulation (PWM) is a modulation method used to encode information on a carrier signal. PWM is mainly used to empower electronic devices. As the modulated signal alternates between 0 and 1 the device gets an average power instead of continuous output. As a result the devices work in transition between OFF and ON states.\\
-Duty cycle means the amount of ON state in a full cycle. The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See Appendix 2.)\\
-This Zumo project has it preset in approx. 390 Hz (1 cycle is 2.56 ms long).\cite{wikipedia:PWM}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12cm]{illustration/About_PWM}
+	\caption[]{PWM cycle}
+	\label{fig:aboutpwm}
+\end{figure}
+\\
+Duty cycle means the length of ON state ($T_{on}$ in figure) during a full cycle ($T$ in figure). The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See Appendix 2.)\\
+In this project 1 cycle is exactly 2.56 ms long as 8 bit timer used. Therefore frequency is approximately 390 Hz. 0 value means no movement, brakes are on during the whole cycle.
+\cite{wikipedia:PWM}
+
 
 \section{Infra red sensor}
 Infrared light sensor operation.
 
 \section{Cypress CY8 modeling kit}
-Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware write performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.
+Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware write performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.\cite{cy8ckit}
 
 \section{Zumo robot}
-Zumo by Polulu.
+The Pololu Zumo is a small size (less than 10cm) tracked base robot platform. The motors and controller are replaceable allowing customized builds. It includes a steel plate, mounted at the front to protect electronics and to provide capability to push objects. Power source is 4 pieces of AA battery.\cite{zumo}
 
 \subsection{Battery management}
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
 
 \subsection{Motor control}
 
-\subsection{Sensor reading}
+\subsection{Line detection sensors}
 
 \chapter{Realization}
 
