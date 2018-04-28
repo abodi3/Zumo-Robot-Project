@@ -379,6 +379,8 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 \renewcommand{\arraystretch}{2}
 \begin{tabular}{l p{12cm}}
 AC	& Alternating current\\
+AD	& Analog to digital (converter)\\
+DA	& Digital to analog (converter)\\
 DC	& Direct current\\
 IR	& Infrared\\
 NiMH	& Nickel-metal hydride\\
@@ -401,7 +403,7 @@ PWM & Pulse-width modulation\\
 %	CONTENT
 %----------------------------------------------------------------------------------------
 \chapter{Introduction}
-Project's aim is to develop embedded software which controls the Zumo robot behavior, manage its hardware and perform given predefined tasks. No generic programming necessary, no ad-hoc behavior expected from the robot. Program change performed by reprogramming the firmware of the robot with a different program.
+Project's aim is to develop embedded software which controls the Zumo robot behavior, manage its hardware resources and perform predefined tasks. No generic programming necessary, no ad-hoc behavior expected from the robot. Program change performed by reprogramming the firmware of the robot with a different program.
 
 \chapter{Background}
 
@@ -416,13 +418,30 @@ Pulse Width Modulation (PWM) is a modulation method used to encode information o
 	\label{fig:aboutpwm}
 \end{figure}
 \\
-Duty cycle means the length of ON state ($T_{on}$ in figure) during a full cycle ($T$ in figure). The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See Appendix 2.)\\
+Duty cycle means the length of ON state (T\textsubscript{on} in figure) during a full cycle (T in figure). The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See appendix 1, Frequency)\\
 In this project 1 cycle is exactly 2.56 ms long as 8 bit timer used. Therefore frequency is approximately 390 Hz. 0 value means no movement, brakes are on during the whole cycle.
 \cite{wikipedia:PWM}
 
 
-\section{Infra red sensor}
-Infrared light sensor operation.
+\section{PID controller}
+Proportional-integral-derivative controller or PID controller is a control loop mechanism. The desired position called setpoint (SP). The measured position referred as process variable (PV). The difference of these values give the error value $ e(t) $. Based on this error value a new corrected position calculated. Calculation formula has 3 main parts each influencing differently the output.\\
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12cm]{illustration/PID_controller}
+	\caption[]{PID controller diagram}
+	\label{fig:pidcontroller}
+\end{figure}
+\\
+The proportional part is contributing linearly, greater current $ e(t) $ error value results in greater correction.
+The integral part collects and integrates past error values. When this integrated error applied, it replaces the error deviation caused by proportional correction. As a result the quickly changing proportional correction replaced by a slowly changing integral correction and the function gets dampened.
+The derivative part gives a future estimate based on the current changes in the function. It try to zero out the error change rate. Hence the derivative part cannot bring the error to zero.\\
+\begin{align}
+u(t) = K_{p}e(t) + K_{i} \int_{0}^{t} e(\tau)d\tau + K_{d} \dfrac{de(t)}{dt}
+\end{align}
+\\
+This mathematical formula contains all three parts. If any part is not to be applied the respective coefficient values should be set to 0. Usually the integral, the derivative or both.
+\cite{wikipedia:PID}
+\cite{Lectures}
 
 \section{Cypress CY8 modeling kit}
 Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware write performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.\cite{cy8ckit}
@@ -430,24 +449,60 @@ Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includ
 \section{Zumo robot}
 The Pololu Zumo is a small size (less than 10cm) tracked base robot platform. The motors and controller are replaceable allowing customized builds. It includes a steel plate, mounted at the front to protect electronics and to provide capability to push objects. Power source is 4 pieces of AA battery.\cite{zumo}
 
-\subsection{Battery management}
-Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+\subsection{Power management}
+The Zumo robot is powered by 4x 1,2V NiMH batteries. The micro controller runs with 5V and 0V. In order to protect the batteries form too low discharge the voltage is constantly measured. If the voltage drop low the user has to be noticed.\\
+Because the micro controller operates with 5V, but the  well charged batteries can reach even 1.4V each (sum up in 5.6V) the actual voltage is scaled down to 2/3 (See appendix 1, Voltage division rule). This lowered voltage then directed to micro controllers AD converter unit.\cite{Lectures}
 
 \subsection{Motor control}
+Zumo's motors are 6V DC motors.
+\begin{itemize}
+	\item Idling: no acceleration and minimum force. Power input: 120mA at 6V.
+	\item Stall: 1.6A / motor. Motor controller restricts current to 1.5A / motor.
+	\item Speed: Run at 400 RPM. The installed gearbox's ratio is 75:1. The top speed is approximately 60 cm/s.
+\end{itemize}
+Motor controller unit connects batteries to both motors as instructed by control signals. Motor controller contains H-bridges (DRV 8835). DRV 8835 contains 2 bridges, thus capable to control 2 motors simultaneously.\\
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=15cm]{illustration/H-bridge}
+	\caption{3 states of motor controller}
+	\label{fig:h-bridge}
+\end{figure}\\
+Electronically there are 3 states the H-bridge can be.
+\begin{itemize}
+	\item Forward: direction set to 0, PWM set to 1
+	\item Reverse: direction set to 1, PWM set to 1
+	\item Brake: direction left as it was before braking, PWM set to 0
+\end{itemize}
+In brake mode the motor has changed to generator and shorted. In practice this means wheels locked. There is no mode when wheels can freely roll.
+\cite{Lectures}
 
 \subsection{Line detection sensors}
+Zumo has 6 infrared light based sensor positioned at the front. Because IR light is out of visible spectrum, 2 red light led also placed on board. The IR led's light reflected from the surface under the robot back to the sensors. Amount of reflected light is measured using indirect AD conversion. Reflected light activates IR sensitive transistor which close circuit. The current flowing in the circuit is integrated in a capacitor until voltage reach defined level. Time to reach defined level is measured with a micro controller counter. If the surface is white, it has good reflection, so the big current charge the capacitor in short time.\\
+The actual measurement happens in three steps.
+\begin{itemize}
+	\item Initial situation: Even when no measurement is happening some current might still flow eventually charging up the capacitor.
+	\item Capacitor discharge: When the micro controller measurement pin gives 5V output, on both sides of the capacitor will be 5V. Consequently the capacitor discharge in 1\ldots2 \textmu s.
+	\item Measurement: Micro controller measurement pin set to input and a timer is started. Capacitor starts to charge again as fast as the IR-sensitive transistor allows it. When capacitor charge reach about 2.5V, voltage at measurement point drops below 2.5V and the pin value turn to 0. Capacitor keeps charging up to 5V. Time to turn from 1 to 0 is measured.
+\end{itemize}
+Measurement procedure always takes 1 ms. Different sensors have different sensitivities. Environmental lighting also affects measurement as sun light contains plenty of infrared light.\cite{Lectures}
 
 \chapter{Realization}
 
-\section{The embedded software}
+\section{The embedded software and mechanics}
 Flow charts
 
-\subsection{Software mechanics}
+\subsection{Voltage measurement}
+
+\subsection{PID / Error calculation}
+
+\subsection{Sharp turn calculation}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
 
 Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
 
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+
+\subsection{Motor speed programming}
 
 \section{Timing}
 Gantt charts
@@ -457,7 +512,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam
 
 \chapter{Conclusion}
 
-This chapter gives insight to technical background
+What have been achieved, what can be improved.
 
 \chapter{Latex formating helplet}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
@@ -571,7 +626,7 @@ As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum
 %----------------------------------------------------------------------------------------
 %   BIBLIOGRAPHY 
 %----------------------------------------------------------------------------------------
-
+\newpage
 \bibliographystyle{vancouver}
 %line space
 %\singlespacing %removed otherwise the appendix are also single space
@@ -615,12 +670,31 @@ As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum
 \makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
 \makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx1}\total{appx1})}
 
-\chapter{Mathematics}\label{appx:first}
+\chapter{Physics}\label{appx:first}
+\section{Frequency}
+Frequency means for periodical functions (e.g. signals) the number of periods completed in 1 second. Unit of frequency is Hertz (Hz). For example 1 period in 1 second is 1 Hz. 10 period in 1 second is 10 Hz.
+
+\section{Kinematics}
+
+\section{Electricity}
+\subsection{Voltage division rule}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+
+\section{Infrared light}
+Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
+
+\clearpage % avoid that the last page of previous appendix get this header
+\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
+\newtotcounter{appx2} % to have the total for this appendix and not the previous one.
+%overwrite the header
+\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+
+\chapter{Mathematics}\label{appx:second}
 
 Note that every appendix will be a chapter.
 
 Sorry for the ugly hack on how to count the total pages per appendix.
-
 
 Of course with section and subsection.
 
@@ -637,24 +711,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam
 Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
 
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-
-\clearpage % avoid that the last page of previous appendix get this header
-\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
-\newtotcounter{appx2} % to have the total for this appendix and not the previous one.
-%overwrite the header
-\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
-\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
-
-\chapter{Physics}\label{appx:second}
-\section{Frequency}
-Frequency means for periodical functions (e.g. signals) the number of periods completed in 1 second. Unit of frequency is Hertz (Hz). For example 1 period in 1 second is 1 Hz. 10 period in 1 second is 10 Hz.
-
-\section{Kinematics}
-
-\section{Electricity}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
-
-\section{Infrared light}
-Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
 
 \end{document}

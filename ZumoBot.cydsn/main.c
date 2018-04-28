@@ -83,7 +83,7 @@ int main()
 
 // Main program entry point //
 #if 1
-// P controll - Under development
+// PD controll - Under development
 /* with sharp turning
  * 
  * 
@@ -125,7 +125,7 @@ int main()
     
     reflectance_start();
     
-    uint timer = 0;                                     // Time measurement (counts loop cycles)
+    uint timer = 1;                                     // Time measurement (counts loop cycles)
     uint deltatime = 2;                                 // Waiting time after every loop cycle
     float leftspeed = 0;                                // Left track speed in %
     float rightspeed = 0;                               // Right track speed in %
@@ -136,11 +136,16 @@ int main()
     const uint8 minimum_speed = 40;                     // Minimum travel speed (lower values rounded to this value)
     uint8 actual_leftspeed = 0;                         // This value is calculated from error and written to PWM register
     uint8 actual_rightspeed = 0;                        // This value is calculated from error and written to PWM register
-    float error;                                        // Error rate (Deviation from track center line)
-    const float Kp = travelspeed * 2.1f;                   // Proportion constant (Error rate multiplied with this constant)
+    float error = 0.0f;                                 // Error rate (Deviation from track center line)
+    const float Kp = 1.2f; //2.1f               // Proportion constant (Error rate multiplied with this constant)
+    float error0 = 0.0f;
+    uint time0 = 0;
+    const float Kd = 1.2f;
     uint8 line_counter = 0;                             // Count crosslines. Zumo stops at the 3rd line
     bool line_found = false;                            // Set if zumo have found a crossline
     bool sharpturn = false;
+    uint left_line_last = 0;
+    uint right_line_last = 0;
     
     CyDelay(2000);                                      // Initial wait after turn on
 
@@ -205,6 +210,16 @@ int main()
         //printf("%5d %5d %5d %5d %5d %5d \r\n", dig.l3, dig.l2, dig.l1, dig.r1, dig.r2, dig.r3);
         //print out 0 or 1 according to results of reflectance period
 
+        if (ref.l3 > BLACK_VALUE)
+        {
+            left_line_last = timer;
+        }
+        if (ref.r3 > BLACK_VALUE)
+        {
+            right_line_last = timer;
+        }
+        
+        error0 = error;
                                                         // Calculate error rate and normalize between 0.0 and 1.0
         error = (float)(BLACK_VALUE - ((ref.l1 + ref.r1)/2)) / (BLACK_VALUE - WHITE_VALUE);
         if (error > 1.0f)
@@ -215,13 +230,17 @@ int main()
         {
             error = 0.0f;
         }
+        if (ref.r1 > ref.l1)
+        {
+            error *= -1.0f;
+        }
         
         if (DEBUG_MODE) printf("%d %d Error: %f ", ref.l1, ref.r1, error);
         
-        if (error >= 0.99f && !sharpturn)                             // If the track is lost turn on sharpturn mode
+        if (((error >= 0.99f ) || (error <= -0.99f )) && !sharpturn)                             // If the track is lost turn on sharpturn mode
         {
             sharpturn = true;
-            if (leftspeed > rightspeed)
+            if (left_line_last < right_line_last)
             {
                 leftspeed = 100;
                 rightspeed = -100;
@@ -233,22 +252,23 @@ int main()
             }
         }
         
-        if (sharpturn && (error <= 0.1f))               // If sharpturn mode is on but track is found again
+        if (sharpturn && ((error <= 0.1f) && (error >= -0.1f)))               // If sharpturn mode is on but track is found again
         {
             sharpturn = false;                          // turn off sharpturn mode
         }
         
         if (!sharpturn)                                 // If sharpturn mode off follow the track
         {
-            if (ref.l1 > ref.r1)    // P-control calculation
+            //if (ref.l1 > ref.r1)    // PD-control calculation
+            if (error >= 0)    // PD-control calculation
             {
-                leftspeed = 100 - (Kp * error);
+                leftspeed = 100 - (fabsf((Kp * error) + Kd * ((error - error0) / (timer - time0) )) * travelspeed);
                 rightspeed = 100;
                 if (DEBUG_MODE) printf("LEFT  ");
             }
             else
             {
-                rightspeed = 100 - (Kp * error);
+                rightspeed = 100 - (fabsf((Kp * error) + Kd * ((error - error0) / (timer - time0) )) * travelspeed);
                 leftspeed = 100;
                 if (DEBUG_MODE) printf("RIGHT ");
             }
@@ -332,6 +352,7 @@ int main()
         
         if (DEBUG_MODE) printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
         
+        time0 = timer;
         CyDelay(deltatime);
         timer += deltatime;
         //forward_counter += deltatime;
