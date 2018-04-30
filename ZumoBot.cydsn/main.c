@@ -83,9 +83,9 @@ int main()
 
 // Main program entry point //
 #if 1
-// PD controll - Under development
+// PID controll - Under development
 /* with sharp turning
- * 
+ * Algorithm is ready, now tuning the parameters
  * 
  * 
  * 
@@ -94,6 +94,7 @@ int main()
 #define TIMELIMIT 20000                                 // Robot shutdown time
 #define BLACK_VALUE 19000                               // Black threshold
 #define WHITE_VALUE 5000                                // White threshold
+#define LOOP_DELAY 2                                    // Delay time at the end of the control loop
 #define DEBUG_MODE 1
 
 int main()
@@ -125,22 +126,26 @@ int main()
     
     reflectance_start();
     
-    uint timer = 1;                                     // Time measurement (counts loop cycles)
-    uint deltatime = 2;                                 // Waiting time after every loop cycle
+    uint32 time1 = 0;                                   // Current loop time
+    uint32 time0 = 0;                                   // Previous loop time (Used to calculate passed time between loops)
+
     float leftspeed = 0;                                // Left track speed in %
     float rightspeed = 0;                               // Right track speed in %
     const float leftadjust = 1.0;                       // Left track adjusment (Adjust value until robot goes straight)
     const float rightadjust = 0.96;                     // Right track adjustment (Adjust value until robot goes straight)
     const float travelspeed = 255;                      // Maximum travel speed (255 is the largest accepted value by PWM)
-
     const uint8 minimum_speed = 40;                     // Minimum travel speed (lower values rounded to this value)
     uint8 actual_leftspeed = 0;                         // This value is calculated from error and written to PWM register
     uint8 actual_rightspeed = 0;                        // This value is calculated from error and written to PWM register
+    
     float error = 0.0f;                                 // Error rate (Deviation from track center line)
-    const float Kp = 1.2f; //2.1f               // Proportion constant (Error rate multiplied with this constant)
-    float error0 = 0.0f;
-    uint time0 = 0;
-    const float Kd = 1.2f;
+    const float Kp = 1.00f; //2.1f                      // Proportion constant (Error rate multiplied with this constant)
+    float error0 = 0.0f;                                // Previous error
+    float integral = 0.0f;                              // Integral variable (Sum of past errors)
+    const float Ki = 0.0f;                              // Integral constant
+    float derivative = 0.0f;
+    const float Kd = 1.0f;                              // Derivative constant
+    
     uint8 line_counter = 0;                             // Count crosslines. Zumo stops at the 3rd line
     bool line_found = false;                            // Set if zumo have found a crossline
     bool sharpturn = false;
@@ -168,16 +173,17 @@ int main()
     motor_stop();                                       // Stop at startline
     
                                                         // Wait for start IR signal
-    IR_flush();                                         // clear IR receive buffer
+    //IR_flush();                                         // clear IR receive buffer
     if (DEBUG_MODE) printf("Buffer cleared\n");
     
-    IR_wait();                                          // wait for IR command
+    //IR_wait();                                          // wait for IR command
     if (DEBUG_MODE) printf("IR command received\n");
+    
+    time0 = GetTicks();                                 // Init previous time variable
     
     for(;;)
     {
-                                                        // Check battery status
-        ADC_Battery_StartConvert();
+        ADC_Battery_StartConvert();                     // Check battery status
         if(ADC_Battery_IsEndConversion(ADC_Battery_WAIT_FOR_RESULT)) {   // wait for get ADC converted value
             adcresult = ADC_Battery_GetResult16();      // get the ADC value (0 - 4095)
             // convert value to Volts
@@ -192,10 +198,12 @@ int main()
             }
             // Print both ADC results and converted value
             //printf("%d %f\r\n",adcresult, volts);
-        }
-                                                        // Check battery status - End
+        }                                               // Check battery status - End
         
-        if (!Motor_Status && timer <= TIMELIMIT)        // ...go!
+        time1 = GetTicks();                             // Get current time
+        if (DEBUG_MODE) printf("%8lu ", time1);
+        
+        if (!Motor_Status && time1 <= TIMELIMIT)        // ...go!
         {
             motor_start();                              // motor start
             Motor_Status = true;
@@ -212,14 +220,12 @@ int main()
 
         if (ref.l3 > BLACK_VALUE)
         {
-            left_line_last = timer;
+            left_line_last = time1;
         }
         if (ref.r3 > BLACK_VALUE)
         {
-            right_line_last = timer;
+            right_line_last = time1;
         }
-        
-        error0 = error;
                                                         // Calculate error rate and normalize between 0.0 and 1.0
         error = (float)(BLACK_VALUE - ((ref.l1 + ref.r1)/2)) / (BLACK_VALUE - WHITE_VALUE);
         if (error > 1.0f)
@@ -234,8 +240,6 @@ int main()
         {
             error *= -1.0f;
         }
-        
-        if (DEBUG_MODE) printf("%d %d Error: %f ", ref.l1, ref.r1, error);
         
         if (((error >= 0.99f ) || (error <= -0.99f )) && !sharpturn)                             // If the track is lost turn on sharpturn mode
         {
@@ -259,16 +263,21 @@ int main()
         
         if (!sharpturn)                                 // If sharpturn mode off follow the track
         {
-            //if (ref.l1 > ref.r1)    // PD-control calculation
-            if (error >= 0)    // PD-control calculation
+                                                        // Calculate integral and derivative parts of PID
+            integral = integral + error * (time1 - time0);
+            derivative = (error - error0) / (time1 - time0);
+            
+            if (DEBUG_MODE) printf("E(t): %f I: %f D: %f ", error, integral, derivative);
+        
+            if (error >= 0)                             // PID-control output applied to left motor speed
             {
-                leftspeed = 100 - (fabsf((Kp * error) + Kd * ((error - error0) / (timer - time0) )) * travelspeed);
+                leftspeed = 100 - (fabsf(Kp * error + Ki * integral + Kd * derivative) * travelspeed);
                 rightspeed = 100;
                 if (DEBUG_MODE) printf("LEFT  ");
             }
-            else
+            else                                        // PID-control output applied to right motor speed
             {
-                rightspeed = 100 - (fabsf((Kp * error) + Kd * ((error - error0) / (timer - time0) )) * travelspeed);
+                rightspeed = 100 - (fabsf(Kp * error + Ki * integral + Kd * derivative) * travelspeed);
                 leftspeed = 100;
                 if (DEBUG_MODE) printf("RIGHT ");
             }
@@ -292,7 +301,7 @@ int main()
         }
         
         
-        if (Motor_Status && (timer > TIMELIMIT || line_counter >= 3) )  // If reach target / run out of time: Stop motors
+        if (Motor_Status && (time1 > TIMELIMIT || line_counter >= 3) )  // If reach target / run out of time: Stop motors
         {
             motor_stop();               // motor stop
             leftspeed = 0;
@@ -352,10 +361,9 @@ int main()
         
         if (DEBUG_MODE) printf("As: %3d %3d\n", actual_leftspeed, actual_rightspeed);
         
-        time0 = timer;
-        CyDelay(deltatime);
-        timer += deltatime;
-        //forward_counter += deltatime;
+        time0 = time1;                      // Current time becomes previous time
+        error0 = error;                     // Current error becomes previous error
+        CyDelay(LOOP_DELAY);
     }                                       // Infinite loop end
 }                                           // Main function end
 
@@ -1270,7 +1278,8 @@ int main()
             adcresult = ADC_Battery_GetResult16(); // get the ADC value (0 - 4095)
             // convert value to Volts
             // you need to implement the conversion
-            
+            volts = (float)adcresult / 4095 * 5;
+            volts *= 1.5f;
             // Print both ADC results and converted value
             printf("%d %f\r\n",adcresult, volts);
         }
