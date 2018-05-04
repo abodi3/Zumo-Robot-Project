@@ -81,9 +81,16 @@ int main()
  * @details  ** Enable global interrupt since Zumo library uses interrupts. **<br>&nbsp;&nbsp;&nbsp;CyGlobalIntEnable;<br>
 */
 
+
 // Main program entry point //
+
+
+
+// P controll - Under development
+
 #if 1
 // PID controll - Under development
+
 /* with sharp turning
  * Algorithm is ready, now tuning the parameters
  * 
@@ -620,17 +627,11 @@ int main()
 
 #endif
 
+
+
 #if 0
-// On/Off controll - Under development
-/*
- * l1 || r1 > 20000
- * l2 && r2 < 10000 ok
- * l2 || r2 > 10000 small adjustment
- * l2 || r2 > 20000 big adjustment
- */
-
-#define TIMELIMIT 50000
-
+//battery level//
+>>>>>>> Stashed changes
 int main()
 {
     CyGlobalIntEnable; 
@@ -1285,6 +1286,8 @@ int main()
         }
         CyDelay(500);
         
+       
+        
     }
  }   
 #endif
@@ -1327,20 +1330,125 @@ int main()
 #endif
 
 
-#if 0
+#if 1
 //ultrasonic sensor//
+    int distance;
+      
+    
+    int seek()
+    {
+         
+         motor_turn(0,155,0);
+        
+        return 0;
+    }
+    int attack(int distance, int digl3, int digr3)
+    {
+        if (distance <= 35)
+        {
+            motor_forward(255,1);         
+        }
+        
+        
+        if (distance > 35)
+            
+        { 
+            seek();    
+        }
+        
+        if (digl3 || digr3) 
+        {
+            motor_backward(200,0);
+            motor_turn(0,200,0);
+        }
+           
+        return 0;
+    }
+    
+  /*  int moveToStart()
+    {
+        
+        motor_forward(100,0);
+        
+       
+        return 0;
+    }
+    
+    int waitForStart(int dig1, int dig2, int dig3, int dig4)
+    {
+        if(dig1 && dig2 && dig3 && dig4) 
+        motor_stop();
+    
+        return 0;
+    }*/
+    
+  
 int main()
 {
+    
     CyGlobalIntEnable; 
     UART_1_Start();
     Systick_Start();
-    Ultra_Start();                          // Ultra Sonic Start function
-    while(1) {
-        int d = Ultra_GetDistance();
+    Ultra_Start();          // Ultra Sonic Start function
+    IR_Start();
+    IR_flush();
+    motor_start();
+    
+    //struct sensors_ ref;
+    struct sensors_ dig;
+    
+    reflectance_start();
+    reflectance_set_threshold(15000, 9000, 11000, 11000, 9000, 15000); // set center sensor threshold to 11000 and others to 9000
+    
+    //reflectance_read(&ref);
+    
+    reflectance_digital(&dig);
+
+    /*moveToStart();
+    
+    
+    waitForStart(dig.l2, dig.l1, dig.r1, dig.r2);
+    */
+    
+    
+    
+    while (dig.l3 == 0 && dig.r3 == 0)
+    {
+        motor_forward(100,10);
+        reflectance_digital(&dig);
+    }
+    motor_forward(0,0);
+    motor_stop();
+    
+    IR_wait();
+    
+    motor_start();
+    motor_forward(100,2000);
+    
+    int d = 0;
+    
+    while(1)
+    {
+        d = Ultra_GetDistance();
         //If you want to print out the value  
-        printf("distance = %d\r\n", d);
+        //printf("distance = %d\r\n", d);
+        
+        reflectance_digital(&dig);
+        if (dig.l3 == 1 || dig.r3 == 1)
+        {
+            //motor_forward(0,0);
+            // Black line found
+            motor_backward(100, 400);
+            motor_turn(0,250,40);
+        }
+        
+        seek();
+        
+        attack(d, dig.l3, dig.r3);
+            
         CyDelay(200);
     }
+    
 }   
 #endif
 
@@ -1382,10 +1490,18 @@ int main()
 //reflectance//
 int main()
 {
+    //int PV, SP;
+    
+    int setPoint, error, previousError ,correction, leftMotorSpeed, rightMotorSpeed;
+    float kpValue = 0, kdValue = 0;
+    uint8 leftSpeed = 80, rightSpeed = 80;
+    //uint32 delay = 10;
+    
     struct sensors_ ref;
     struct sensors_ dig;
 
     Systick_Start();
+    motor_start();
 
     CyGlobalIntEnable; 
     UART_1_Start();
@@ -1394,10 +1510,16 @@ int main()
     reflectance_set_threshold(9000, 9000, 11000, 11000, 9000, 9000); // set center sensor threshold to 11000 and others to 9000
     float error;
     
+<<<<<<< Updated upstream
+=======
+    
+         
+>>>>>>> Stashed changes
     for(;;)
     {
         // read raw sensor values
         reflectance_read(&ref);
+<<<<<<< Updated upstream
         printf("%5d %5d %5d %5d %5d %5d %5d ", ref.l3, ref.l2, ref.l1, ref.r1, ref.r2, ref.r3, (ref.l1 + ref.r1)/2);       // print out each period of reflectance sensors
         error = (float)(19000 - ((ref.l1 + ref.r1)/2)) / (19000 - 5000);
         if (error > 1.0f)
@@ -1405,13 +1527,123 @@ int main()
         if (error < 0.0f)
         { error = 0.0f;}
         printf("%f \r\n", error);
+=======
+        //printf("%5d %5d %5d %5d %5d %5d\r\n", ref.l3, ref.l2, ref.l1, ref.r1, ref.r2, ref.r3);       // print out each period of reflectance sensors
+>>>>>>> Stashed changes
         
         // read digital values that are based on threshold. 0 = white, 1 = black
         // when blackness value is over threshold the sensors reads 1, otherwise 0
         reflectance_digital(&dig);      //print out 0 or 1 according to results of reflectance period
         //printf("%5d %5d %5d %5d %5d %5d \r\n", dig.l3, dig.l2, dig.l1, dig.r1, dig.r2, dig.r3);        //print out 0 or 1 according to results of reflectance period
+<<<<<<< Updated upstream
+=======
+   
+        //IF AND ELSE STATEMENTS WITH DIGITAL VALUES
+    /*    
+    if (!dig.l2 &&dig.l1 && dig.r1 && !dig.r2) // all clear condition
+    {
+        motor_forward(255, 10);
+    }
+    
+    else if (dig.l2 && dig.l1 && !dig.r1 && !dig.r2) // (0011)smaller turn here to the left
+    {
+         motor_turn(0,180,10);
+    }
+    
+    else if (dig.l2  && !dig.l1 && !dig.r1 && !dig.r2 ) //(1000) faster turn to the left
+    {
+       // motor_turn(0,180,10);
+         MotorDirRight_Write(0);
+        MotorDirLeft_Write(1);
+        if (dig.l1 && dig.r1)
+        {
+            MotorDirRight_Write(0);
+            MotorDirLeft_Write(0);
+            motor_forward(255,10);
+        }
         
-        CyDelay(200);
+    }
+    
+    else if (!dig.l2 && !dig.l1 && dig.r1 && dig.r2) // (1100)smaller turn here to the right
+    {
+        
+        motor_turn(180,0,10);
+        
+    }
+    
+    else if (!dig.l2  && !dig.l1 && !dig.r1 && dig.r2 ) //(0001) faster turn to the right
+    {
+       
+        MotorDirRight_Write(1);
+        MotorDirLeft_Write(0);
+        if (dig.l1 && dig.r1)
+        {
+            MotorDirRight_Write(0);
+            MotorDirLeft_Write(0);
+            motor_forward(255,10);
+        }
+    } 
+    */
+    
+    
+        
+        //PD Control
+    
+        setPoint = 14000; // value to be compared to, ref.l1 close to edge of line
+        
+        kpValue = 1.3; // modifiable
+        
+        kdValue = 0.5; // modifiable
+    
+        error = setPoint - ref.l1; //error calculation in relation to ref.l1
+    
+        //previousError = error; //differential error
+        
+        correction = kpValue * error; //+ kdValue * (error-previousError); //correction to be used
+    
+        rightMotorSpeed = rightSpeed - correction;
+        leftMotorSpeed = leftSpeed + correction;
+        
+      
+        if (rightMotorSpeed > rightSpeed) rightMotorSpeed = rightSpeed;
+            
+        if (leftMotorSpeed > leftSpeed) leftMotorSpeed = leftSpeed;
+        
+        
+        if (rightMotorSpeed < 0) rightMotorSpeed = 0;
+        if (leftMotorSpeed < 0) leftMotorSpeed = 0;
+        
+        //motor_forward(255,10);
+        
+       
+        
+        motor_turn(leftMotorSpeed,rightMotorSpeed,0);
+        
+        printf("%5d,%5d, \n", leftMotorSpeed,rightMotorSpeed);
+   
+    
+        
+    
+ 
+        
+       
+        
+      
+        
+        
+        
+        
+        
+        
+        
+    
+        //CyDelay(10);
+        
+        
+        
+             
+>>>>>>> Stashed changes
+        
     }
 }   
 #endif
@@ -1435,6 +1667,7 @@ int main()
     
     for(;;)
     {
+        
 
     }
 }
