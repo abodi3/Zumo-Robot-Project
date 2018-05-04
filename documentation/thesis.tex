@@ -492,6 +492,14 @@ Measurement procedure always takes 1 ms. Different sensors have different sensit
 Flow charts
 
 \subsection{Voltage measurement}
+Library for battery management is named \textless ADC\_Battery \textgreater . It is part of micro controller standard library and the source can be found in 'codegentemp' folder. Prior to use, it has to be initialized with ADC\_Battery\_Start() command.\\
+Actual measuring is not instantaneous. The process is started with the  ADC\_Battery\_StartConvert() command.\\
+Wait to finish measurement is achieved in one step:  ADC\_Battery\_IsEndConversion(ADC\_Battery\_WAIT\_FOR\_RESULT).
+The actual value is queried with ADC\_Battery\_GetResult16() instruction. As the micro controller operates with 5V, measurement range is 0V - 5V. The AD converter is 12 bits unsigned therefore the return value is in 0 - 4095 interval. The formula of actual voltage:
+\begin{align}
+volts = \dfrac{AD code}{4095} * 5 * 1.5
+\end{align}
+. As mentioned in Chapter 2's Zumo robot section, battery voltage scaled down to 2/3. The trailing multiplication by 1.5 in the formula compensates this scale down.
 
 \subsection{PID / Error calculation}
 
