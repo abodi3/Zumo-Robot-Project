@@ -54,8 +54,8 @@
 \def\metropoliadegreeprogramme {Information Technology}
 \def\metropoliaspecialisation {Smart Systems / Devices}
 \def\metropoliainstructors {
-Joseph Hotchkiss, Project Engineer\newline
-Keijo Länsikunnas, Senior Lecturer}
+Keijo Länsikunnas, Senior Lecturer\newline
+Joseph Hotchkiss, Project Engineer}
 \def\metropoliakeywords {Devices, Smart Systems, Embedded systems, Electronics}
 
 %----------------------------------------------------------------------------------------
@@ -329,12 +329,16 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
   \\ \hline
   Degree Programme & \metropoliadegreeprogramme
   \\ \hline
-  Specialisation option & \metropoliaspecialisation
+  Specialization option & \metropoliaspecialisation
   \\ \hline
   Instructor(s) & \metropoliainstructors
   \\ \hline
   \multicolumn{2}{|p{15cm}|}{
-  	Project's aim is to develop an embedded software for Zumo robot control. This documentation covers the theoretical and practical principles required during development. Necessary mathematical, physical and electronic concepts also presented.
+  	Project's main objective was to develop an embedded software for Zumo robot control. To achieve this goal elementary theorems had been learned. These basics include but not restricted to numerical representation in 2's complement format, boolean algebra, PWM modulation and PID control. Study of technical manual and electronics datasheets had been necessary.
+  	After sufficient knowledge in embedded system programming achieved, the implementation work started with power management to avoid battery ruining.
+  	In the next step a basic decision based line following algorithm was developed. The method gave insight how the robot sees the line and how can the current position be measured.
+  	To further experiment with the robot control a basic Proportional-Integral-Derivative (PID) control algorithm was developed. Although the code had been finished, it never got fine tuned, only the proportional part is in use with a sufficiently high coefficient. Tests show, by utilizing 4 sensors instead only the two middle, the smoothness of movement can be further increased.
+  	Finally a "simple go inside the circle and stay there" algorithm was written for the sumo-style contest.
   } \\[14cm] \hline
   Keywords & \metropoliakeywords
   \\ \hline
@@ -345,7 +349,7 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 %	Acknowledgement ?
 %----------------------------------------------------------------------------------------
 %\chapter*{Acknowledgement}
-%Thanks to my cats Sirnik and Masa for their continuous support.
+%Thanks to my cats Sirnik and Masya for their continuous support.
 %\clearpage
 
 %----------------------------------------------------------------------------------------
@@ -379,8 +383,8 @@ Helsinki Metropolia University of Applied Sciences\\[2pt]
 \renewcommand{\arraystretch}{2}
 \begin{tabular}{l p{12cm}}
 AC	& Alternating current\\
-AD	& Analog to digital (converter)\\
-DA	& Digital to analog (converter)\\
+AD(C)	& Analog to digital (converter)\\
+DA(C)	& Digital to analog (converter)\\
 DC	& Direct current\\
 IR	& Infrared\\
 NiMH	& Nickel-metal hydride\\
@@ -403,9 +407,10 @@ PWM & Pulse-width modulation\\
 %	CONTENT
 %----------------------------------------------------------------------------------------
 \chapter{Introduction}
-Project's aim is to develop embedded software which controls the Zumo robot behavior, manage its hardware resources and perform predefined tasks. Program change performed by reprogramming the firmware of the robot with a different program.
+The aim of this project was to study existing technologies and possibly discover new methods to effectively control electronic and robotic systems. The fundamentals of embedded system development was examined and an experimental control software was developed. The main objectives of the embedded software was hardware resource management, overall behavior implementation and predefined task perform. Many basic components of the robot and the micro controller had been explored to achieve these tasks. These modules have been presented in this documentation to provide a complete reference.\\
+In the next chapter all the theoretical knowledge explained, which required to understand the basic operation of the robot's electronic. The third chapter presents the software's actual way of operation. The last chapter brings conclusion and show a possible direction for future development.
 
-\chapter{Background}
+\chapter{Theoretical background}
 
 First part of this chapter gives insight to theoretical electronic knowledge. The second part presents the electronic modules used in the robot and explains their components' operation.
 
@@ -492,10 +497,12 @@ Measurement procedure always takes 1 ms. Different sensors have different sensit
 Flow charts
 
 \subsection{Voltage measurement}
-Library for battery management is named \textless ADC\_Battery \textgreater . It is part of micro controller standard library and the source can be found in 'codegentemp' folder. Prior to use, it has to be initialized with ADC\_Battery\_Start() command.\\
-Actual measuring is not instantaneous. The process is started with the  ADC\_Battery\_StartConvert() command.\\
-Wait to finish measurement is achieved in one step:  ADC\_Battery\_IsEndConversion(ADC\_Battery\_WAIT\_FOR\_RESULT).
+\begin{sloppypar}
+Library for battery management is named \textless ADC\_Battery\textgreater . It is part of micro controller standard library and the source can be found in 'codegentemp' folder. Prior to use, it has to be initialized with ADC\_Battery\_Start() command.
+Actual measuring is not instantaneous. The process is started with the ADC\_Battery\_StartConvert() command.\\
+Wait to finish measurement is achieved in one step: ADC\_Battery\_IsEndConversion(ADC\_Battery\_WAIT\_FOR\_RESULT).
 The actual value is queried with ADC\_Battery\_GetResult16() instruction. As the micro controller operates with 5V, measurement range is 0V - 5V. The AD converter is 12 bits unsigned therefore the return value is in 0 - 4095 interval. The formula of actual voltage:
+\end{sloppypar}
 \begin{align}
 volts = \dfrac{AD code}{4095} * 5 * 1.5
 \end{align}
@@ -520,14 +527,27 @@ Gantt charts
 	\includegraphics[width=15cm]{illustration/development_timeline}
 	\caption{Development timeline}
 	\label{fig:dev_timeline}
-\end{figure}\\
+\end{figure}
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
 
 
 \chapter{Conclusion}
 
-What have been achieved, what can be improved.
+Summary and Conclusions. This section summarizes the thesis and its
+objectives and results and makes recommendations. It answers
+questions such as: What was the purpose of this thesis? What was the
+thesis based on? What was discovered or what was the outcome? To
+what extent were the objectives of the thesis achieved? What would not
+be known if this work had not been carried out? What recommendations
+can be made, i.e. what should the case company/organization do based
+on the findings/outcome of the thesis? What was left unexplained? How
+could research be continued? How can the thesis be used? In addition,
+this section may also reflect on what was learned during the entire
+project. Again, absolutely no new theory is introduced here.
+
+
+
 
 \chapter{Latex formating helplet}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
@@ -698,33 +718,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam
 \section{Infrared light}
 Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
 
-\clearpage % avoid that the last page of previous appendix get this header
-\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
-\newtotcounter{appx2} % to have the total for this appendix and not the previous one.
+%\clearpage % avoid that the last page of previous appendix get this header
+%\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
+%\newtotcounter{appx2} % to have the total for this appendix and not the previous one.
 %overwrite the header
-\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
-\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+%\makeevenhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
+%\makeoddhead{plain}{}{}{Appendix \thechapter \\ \thepage (\stepcounter{appx2}\total{appx2})}
 
-\chapter{Mathematics}\label{appx:second}
+%\chapter{Mathematics}\label{appx:second}
 
-Note that every appendix will be a chapter.
+%\section{Appendix Section}
 
-Sorry for the ugly hack on how to count the total pages per appendix.
-
-Of course with section and subsection.
-
-\section{Appendix Section}
-
-And you can cite \cite{tobias:book} stuff, it will go into the main bibliography.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
-
-\subsection{With a Subsection}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
-
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
-
-Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
+%\subsection{With a Subsection}
 
 \end{document}
