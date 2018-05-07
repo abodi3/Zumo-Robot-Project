@@ -98,7 +98,7 @@ int main()
  * 
  */
 
-#define TIMELIMIT 20000                                 // Robot shutdown time
+#define TIMELIMIT 50000                                 // Robot shutdown time
 #define BLACK_VALUE 19000                               // Black threshold
 #define WHITE_VALUE 5000                                // White threshold
 #define LOOP_DELAY 2                                    // Delay time at the end of the control loop
@@ -146,12 +146,12 @@ int main()
     uint8 actual_rightspeed = 0;                        // This value is calculated from error and written to PWM register
     
     float error = 0.0f;                                 // Error rate (Deviation from track center line)
-    const float Kp = 1.00f; //2.1f                      // Proportion constant (Error rate multiplied with this constant)
+    const float Kp = 2.10f; //2.1f                      // Proportion constant (Error rate multiplied with this constant)
     float error0 = 0.0f;                                // Previous error
     float integral = 0.0f;                              // Integral variable (Sum of past errors)
     const float Ki = 0.0f;                              // Integral constant
     float derivative = 0.0f;
-    const float Kd = 1.0f;                              // Derivative constant
+    const float Kd = 0.0f;                              // Derivative constant
     
     uint8 line_counter = 0;                             // Count crosslines. Zumo stops at the 3rd line
     bool line_found = false;                            // Set if zumo have found a crossline
@@ -382,7 +382,7 @@ int main()
 /*
  */
 
-#define TIMELIMIT 20000
+#define TIMELIMIT 80000
 #define BLACK_VALUE 19000
 #define WHITE_VALUE 5000
 #define DEBUG_MODE 1
@@ -1398,7 +1398,7 @@ int main()
     struct sensors_ dig;
     
     reflectance_start();
-    reflectance_set_threshold(15000, 9000, 11000, 11000, 9000, 15000); // set center sensor threshold to 11000 and others to 9000
+    reflectance_set_threshold(9000, 9000, 11000, 11000, 9000, 9000); // set center sensor threshold to 11000 and others to 9000
     
     //reflectance_read(&ref);
     
