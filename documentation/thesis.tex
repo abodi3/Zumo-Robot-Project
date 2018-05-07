@@ -450,8 +450,8 @@ Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includ
 The Pololu Zumo is a small size (less than 10cm) tracked base robot platform. The motors and controller are replaceable allowing customized builds. It includes a steel plate, mounted at the front to protect electronics and to provide capability to push objects. Power source is 4 pieces of AA battery.\cite{zumo}
 
 \subsection{Power management}
-The Zumo robot is powered by 4x 1,2V NiMH batteries. The micro controller runs with 5V and 0V. In order to protect the batteries form too low discharge the voltage is constantly measured. If the voltage drop low the user has to be noticed.\\
-Because the micro controller operates with 5V, but the  well charged batteries can reach even 1.4V each (sum up in 5.6V) the actual voltage is scaled down to 2/3 (See appendix 1, Voltage division rule). This lowered voltage then directed to micro controllers AD converter unit.\cite{Lectures}
+The Zumo robot is powered by 4x 1,2V NiMH batteries. The micro controller runs with 5V and 0V. In order to protect the batteries form too low discharge the voltage is constantly measured. If the voltage drop low the user has to be notified using the led light on the robot.\\
+Because the micro controller operates with clean 5V, and the fully charged batteries reach up to 1.4V each (sum up in 5.6V) the actual voltage is scaled down to 2/3 (See appendix 1, Voltage division rule). This lowered voltage is then directed to micro controllers AD converter unit.\cite{Lectures}
 
 \subsection{Motor control}
 Zumo's motors are 6V DC motors.
@@ -520,9 +520,15 @@ Gantt charts
 	\includegraphics[width=15cm]{illustration/development_timeline}
 	\caption{Development timeline}
 	\label{fig:dev_timeline}
-\end{figure}\\
+\end{figure}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
+\subsection{Familiarisation Of Robot}
+
+\subsection{Project Setup}
+PSoC creator software was downloaded and installed. Github was used as version control. To achieve this, one member of the group created a github repository and other members were added as contributors. Considering the time frame for the project, a library was provided which had the hardware and the various components set up. The code needed to follow the line and to participate in the Sumo fight was then programmed using this library. 
+
+\subsection{Play With Robot}
+
 
 
 \chapter{Conclusion}
