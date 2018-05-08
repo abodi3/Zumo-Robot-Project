@@ -570,13 +570,31 @@ void motor_forward(uint8 speed,uint32 delay)
     CyDelay(delay);
 }
 \end{lstlisting}\vspace{-22pt}
-As shown in code snippet in , the motor\_forward function takes uint8 (unsinged 8bit Integer) value of 100 which represents the speed value as the first value
-and 2000 as the delay. 
+As shown in code snippet  , the motor\_forward function takes uint8 (unsinged 8bit Integer) value of 100 which represents the speed value as the first parameter and 2000 as the delay.  
 \vspace{-22pt}\begin{lstlisting}[language=C,caption={Robot Forward Move},label=move.c] 
 motor_forward(100,2000);     // moving forward
 motor_turn(200,50,2000);     // turn
 motor_turn(50,200,2000);     // turn
 motor_backward(100,2000);    // moving backward
+\end{lstlisting}\vspace{-22pt}
+
+\subsection{Sensors And Data}
+The robot uses six reflective sensors. The values provided by the sensors are higher when on black, around 23000 and about 5000 when on white. 
+As the robot nears black, the values increases and vice versa. For the Sumo fight, an ultrasonic sensor was used to measure distance. The ultrasonic sensor served as the eye of the robot to determine the proximity of other robots. Reflectance\_start() function is used to start the sensors. 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance},label=reflectance.c] 
+void reflectance_start()
+{
+    IR_led_Write(1);
+    //sensor_isr_StartEx(sensor_isr_handler);
+    Timer_R1_Start();
+    Timer_R2_Start();
+    Timer_R3_Start();
+    Timer_L3_Start();
+    Timer_L2_Start();
+    Timer_L1_Start();
+    refl_init = true;
+    Systick_Start();
+}
 \end{lstlisting}\vspace{-22pt}
 
 
