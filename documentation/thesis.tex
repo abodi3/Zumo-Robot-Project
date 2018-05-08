@@ -679,6 +679,33 @@ As the robot had been moved over the black line we get the above sensor values. 
     } 
 \end{lstlisting}\vspace{-22pt}
 Using the above code, the robot was able to follow the line considerably well albeit not smoothly enough. The If/Else code above, takes into account the digital values that the sensors output which was determined during our value tweaking phase. From the first If statement, the motor\_forward function takes the maximum speed value of 255 and a delay of 10 milliseconds, if both middle sensors are on black and hence has a value of 1. After 10 milliseconds, the condition is checked again and moves to the next code if condition has changed. 
+The first else if condition statement, checks if sensor l2 and l1  can both see black and if r2 and r1 both see white, in that case, we give the left motor a speed of 0 and the right motor a speed of 180 cause the robot to turn left. A  check was performed again after 10milliseconds. This approach worked for simple turns but failed at sharper turns. 
+We found that one way to work the sharper turns was to make use of the motor\_backwards function of the library.  
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={motor\_turn and motor\_backwards},label=backwards.c]
+void motor_turn(uint8 l_speed, uint8 r_speed, uint32 delay)
+{
+    PWM_WriteCompare1(l_speed); 
+    PWM_WriteCompare2(r_speed); 
+    CyDelay(delay);
+}
+
+
+/**
+* @brief    Moving motors backward
+* @details  setting backward mode to each motors and gives same speed to each side of PWM
+* @param    uint8 speed : speed value
+* @param    uint32 delay : delay time
+*/
+void motor_backward(uint8 speed,uint32 delay)
+{
+    MotorDirLeft_Write(1);      // set LeftMotor backward mode
+    MotorDirRight_Write(1);     // set RightMotor backward mode
+    PWM_WriteCompare1(speed); 
+    PWM_WriteCompare2(speed); 
+    CyDelay(delay);
+}
+\end{lstlisting}\vspace{-22pt}
+
 
 \chapter{Conclusion}
 
