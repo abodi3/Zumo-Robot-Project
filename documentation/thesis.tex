@@ -386,10 +386,16 @@ AC	& Alternating current\\
 AD(C)	& Analog to digital (converter)\\
 DA(C)	& Digital to analog (converter)\\
 DC	& Direct current\\
+IDE	& Integrated Development Environment\\
 IR	& Infrared\\
 NiMH	& Nickel-metal hydride\\
 PID & Proportional, Integral, Derivate (control)\\
+PSoC	& Programmable System on Chip\\
+PV	& Process variable\\
 PWM & Pulse-width modulation\\
+SP	& Set-point\\
+UART	& Universal asynchronous receiver-transmitter\\
+USB	& Universal Serial Bus\\
 
 \end{tabular}
 \end{table}
@@ -411,7 +417,6 @@ The aim of this project was to study existing technologies and possibly discover
 In the next chapter all the theoretical knowledge explained, which required to understand the basic operation of the robot's electronic. The third chapter presents the software's actual way of operation. The last chapter brings conclusion and show a possible direction for future development.
 
 \chapter{Theoretical background}
-
 First part of this chapter gives insight to theoretical electronic knowledge. The second part presents the electronic modules used in the robot and explains their components' operation.
 
 \section{Pulse Width Modulation}
@@ -421,8 +426,7 @@ Pulse Width Modulation (PWM) is a modulation method used to encode information o
 	\includegraphics[width=12cm]{illustration/About_PWM}
 	\caption[]{PWM cycle}
 	\label{fig:aboutpwm}
-\end{figure}
-\\
+\end{figure}\\
 Duty cycle means the length of ON state (T\textsubscript{on} in figure) during a full cycle (T in figure). The cycle length or frequency can move on wide spectrum from 1 Hz (1 cycle / second) to 10-100 kHz. (See appendix 1, Frequency)\\
 In this project 1 cycle is exactly 2.56 ms long as 8 bit timer used. Therefore frequency is approximately 390 Hz. 0 value means no movement, brakes are on during the whole cycle.
 \cite{wikipedia:PWM}
@@ -435,21 +439,19 @@ Proportional-integral-derivative controller or PID controller is a control loop 
 	\includegraphics[width=12cm]{illustration/PID_controller}
 	\caption[]{PID controller diagram}
 	\label{fig:pidcontroller}
-\end{figure}
-\\
+\end{figure}\\
 The proportional part is contributing linearly, greater current $ e(t) $ error value results in greater correction.
 The integral part collects and integrates past error values. When this integrated error applied, it replaces the error deviation caused by proportional correction. As a result the quickly changing proportional correction replaced by a slowly changing integral correction and the function gets dampened.
 The derivative part gives a future estimate based on the current changes in the function. It try to zero out the error change rate. Hence the derivative part cannot bring the error to zero.\\
 \begin{align}
 u(t) = K_{p}e(t) + K_{i} \int_{0}^{t} e(\tau)d\tau + K_{d} \dfrac{de(t)}{dt}
-\end{align}
-\\
+\end{align}\\
 This mathematical formula contains all three parts. If any part is not to be applied the respective coefficient values should be set to 0. Usually the integral, the derivative or both.
 \cite{wikipedia:PID}
 \cite{Lectures}
 
 \section{Cypress CY8 modeling kit}
-Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware write performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.\cite{cy8ckit}
+Cypress CY8CKIT is an Arm Cortex M3 based inexpensive prototyping kit. It includes a programmer and debugger modul, making development easier. It is programmed through USB connection. Output terminal is provided on UART port emulated over the USB connection. Software development and device firmware writing performed with PSoC Creator IDE software provided by Cypress, the kits manufacturer.\cite{cy8ckit}
 
 \section{Zumo robot}
 The Pololu Zumo is a small size (less than 10cm) tracked base robot platform. The motors and controller are replaceable allowing customized builds. It includes a steel plate, mounted at the front to protect electronics and to provide capability to push objects. Power source is 4 pieces of AA battery.\cite{zumo}
@@ -492,8 +494,10 @@ The actual measurement happens in three steps.
 Measurement procedure always takes 1 ms. Different sensors have different sensitivities. Environmental lighting also affects measurement as sun light contains plenty of infrared light.\cite{Lectures}
 
 \chapter{Realization}
+In this chapter the process of project development is presented including code explanation and the circumstances of experimenting with Zumo robot.
 
 \section{The embedded software and mechanics}
+The section explains algorithms as they control different parts of the robot, introduced in the previous chapter. Movement controlling formulas and program flows also explained.
 
 \subsection{Voltage measurement}
 \begin{sloppypar}
@@ -522,8 +526,9 @@ Crossing lines detected in two step by recognizing black-to-white transitions.
 	\item In first step, if both sensors report black value, Line\_found flag is set.
 	\item Secondly, if sensors read white values and Line\_found flag is 1 means the robot just passed from black to white. Consequently line counter variable increased and the flag set to 0.
 \end{itemize}
+Experiments has shown, if-then control can be used to 'convert' smooth path to polygonal track. If the curvatures regarded as rough polygons, the robot movement becomes straight run with sudden direction changes resulting in faster method, than what PID control can provide.
 
-\subsection{PID / Error calculation}
+\subsection{PID control and error calculation}
 
 \subsection{Sharp turn calculation}
 
@@ -534,16 +539,10 @@ Crossing lines detected in two step by recognizing black-to-white transitions.
 	\label{fig:Sharpturn}
 \end{figure}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-
-Quisque augue est, elementum ac porttitor non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit. Nullam egestas enim at odio pellentesque bibendum. 
-
-Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
 
 \subsection{Motor speed programming}
 
 \section{Timing}
-Gantt charts
 
 \begin{figure}[h]
 	\centering
@@ -556,7 +555,7 @@ Gantt charts
 \subsection{Familiarisation Of Robot}
 
 \subsection{Project Setup}
-PSoC creator software was downloaded and installed. Github was used as version control. To achieve this, one member of the group created a github repository and other members were added as contributors. Considering the time frame for the project, a library was provided which had the hardware and the various components set up. The code needed to follow the line and to participate in the Sumo fight was then programmed using this library. 
+PSoC creator software was downloaded and installed. Github was used as version control. To achieve this, one member of the group created a Github repository and other members were added as contributors. Considering the time frame for the project, a library was provided which had the hardware and the various components set up. The code needed to follow the line and to participate in the Sumo fight was then programmed using this library. 
 
 \subsection{Play With Robot}
 We experimented with the robot forward movement as a first step. The motor\_forward function provided by the library, handles this. The code snippet bellow shows the motor\_forward function.
@@ -601,7 +600,14 @@ void reflectance_start()
 \vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance Threshold},label=refthres.c] 
 reflectance_set_threshold(9000, 9000, 11000, 11000, 9000, 9000); // set center sensor threshold to 11000 and others to 9000
 \end{lstlisting}\vspace{-22pt}
-The reflectance\_set\_threshold() function above takes six parameters which are the threshold above which a sensor output is considered a logic 1 and bellow a logic 0. During this phase of the project, we played with several possible values. To do this, we had the robot connected to the laptop without motor running and moved the robot on the black and white to see how the values changed. 
+The reflectance\_set\_threshold() function above takes six parameters which are the threshold above which a sensor output is considered a logic 1 and bellow a logic 0. During this phase of the project, we played with several possible values. To do this, we had the robot connected to the laptop without motor running and moved the robot on the black and white to see how the values changed.\\
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12cm]{illustration/reading_chart}
+	\caption[Value set read by the sensors]{Value set read by the sensors}
+	\label{fig:readingchart}
+\end{figure}
+As the robot had been moved over the black line we get the above sensor values. The peak values form the black line and the low 'valley' values represent the white background.
 
 \subsection{Line Follow With If/Else}
 \vspace{-22pt}\begin{lstlisting}[language=C,caption={If/Else Line Follow},label=follow.c] 
