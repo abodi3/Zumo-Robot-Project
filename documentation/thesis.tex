@@ -580,7 +580,7 @@ motor_backward(100,2000);    // moving backward
 
 \subsection{Sensors And Data}
 The robot uses six reflective sensors. The values provided by the sensors are higher when on black, around 23000 and about 5000 when on white. 
-As the robot nears black, the values increases and vice versa. For the Sumo fight, an ultrasonic sensor was used to measure distance. The ultrasonic sensor served as the eye of the robot to determine the proximity of other robots. Reflectance\_start() function is used to start the sensors. 
+As the robot nears black, the values increases and vice versa. For the Sumo fight, an ultrasonic sensor was used to measure distance. The ultrasonic sensor served as the eye of the robot to determine the proximity of other robots. Reflectance\_start() function from the library was used to start the sensors.
 \vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance},label=reflectance.c] 
 void reflectance_start()
 {
@@ -596,6 +596,64 @@ void reflectance_start()
     Systick_Start();
 }
 \end{lstlisting}\vspace{-22pt}
+
+\subsection{Tweaking Values}
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance Threshold},label=refthres.c] 
+reflectance_set_threshold(9000, 9000, 11000, 11000, 9000, 9000); // set center sensor threshold to 11000 and others to 9000
+\end{lstlisting}\vspace{-22pt}
+The reflectance\_set\_threshold() function above takes six parameters which are the threshold above which a sensor output is considered a logic 1 and bellow a logic 0. During this phase of the project, we played with several possible values. To do this, we had the robot connected to the laptop without motor running and moved the robot on the black and white to see how the values changed. 
+
+\subsection{Line Follow With If/Else}
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={If/Else Line Follow},label=follow.c] 
+ //IF AND ELSE STATEMENTS WITH DIGITAL VALUES OF 4 MIDDLE SENSORS
+       
+    if (!dig.l2 &&dig.l1 && dig.r1 && !dig.r2) // (0110)all clear condition
+    {
+        motor_forward(255, 10);
+    }
+    
+    else if (dig.l2 && dig.l1 && !dig.r1 && !dig.r2) // (1100)smaller turn here to the left
+    {
+         motor_turn(0,180,10);
+    }
+    
+    else if (dig.l2  && !dig.l1 && !dig.r1 && !dig.r2 ) //(1000) faster turn to the left
+    {
+       // motor_turn(0,180,10);
+         MotorDirRight_Write(0);
+        MotorDirLeft_Write(1);
+        if (dig.l1 && dig.r1)
+        {
+            MotorDirRight_Write(0);
+            MotorDirLeft_Write(0);
+            motor_forward(255,10);
+        }
+        
+    }
+    
+    else if (!dig.l2 && !dig.l1 && dig.r1 && dig.r2) // (0011)smaller turn here to the right
+    {
+        
+        motor_turn(180,0,10);
+        
+    }
+    
+    else if (!dig.l2  && !dig.l1 && !dig.r1 && dig.r2 ) //(0001) faster turn to the right
+    {
+       
+        MotorDirRight_Write(1);
+        MotorDirLeft_Write(0);
+        if (dig.l1 && dig.r1)
+        {
+            MotorDirRight_Write(0);
+            MotorDirLeft_Write(0);
+            motor_forward(255,10);
+        }
+    } 
+\end{lstlisting}\vspace{-22pt}
+Using the above code, the robot was able to follow the line considerably well albeit not smoothly enough. The If/Else code above, takes into account the digital values that the sensors output which was determined during our value tweaking phase. From the first If statement, the motor\_forward function takes the maximum speed value of 255 and a delay of 10 milliseconds, if both middle sensors are on black and hence has a value of 1. After 10 milliseconds, the condition is checked again and moves to the next code if condition has changed. 
+
+
 
 
 
