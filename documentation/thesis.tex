@@ -529,18 +529,39 @@ Crossing lines detected in two step by recognizing black-to-white transitions.
 Experiments has shown, if-then control can be used to 'convert' smooth path to polygonal track. If the curvatures regarded as rough polygons, the robot movement becomes straight run with sudden direction changes resulting in faster method, than what PID control can provide.
 
 \subsection{PID control and error calculation}
+This method can provide the most accurate line following. It results in smooth although not the fastest run.\\
+First an error rate must be calculated. It is based on the two middle sensor's average value.
+\begin{align}
+ErrorRate = \dfrac{BlackValue - AverageReading}{BlackValue - WhiteValue}
+\end{align}
+The error rate should be between 0 and 1. Because $BlackValue$ and $WhiteValue$ contains some tolerance (to cover lighting circumstances), error rate can be outside of these boundaries. The direction of deviation also included in the value. Negative sign means deviation to the left side, positive means to the right.\\
+Next the integral and derivative parts are calculated.
+\begin{align}
+Integral = Integral + ErrorRate * DeltaTime
+\end{align}
+\begin{align}
+Derivative = \dfrac{Error - PreviousError}{DeltaTime}
+\end{align}
+In following step, the $ErrorRate$, $Integral$ and $Derivative$ values are multiplied by their respective coefficients and summed up. The absolute value of result is calculated. Finally, based on the sign of error rate (indicates direction) correction is applied to opposite side motor speed. (If robot is on left side of track the right motor must brake.)
 
 \subsection{Sharp turn calculation}
-
+If $ErrorRate$ drops to zero, it means the robot lost track completely. In this situation it should find the way back to the path. To achieve this the two end sensor values are continuously monitored. If any of them reads $BlackValue$, the time is recorded. When the track is lost, sharpturn mode turned on. In sharpturn mode PID control is disabled and more direct control utilized.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=9cm]{illustration/Sharpturn}
 	\caption{The sharp turning mechanism}
 	\label{fig:Sharpturn}
-\end{figure}
-
+\end{figure}\\
+The robot can not leave the track without reading on any side $BlackValue$, therefore one of the time stamps is indicating where should the robot look for the path.\\
+When sharpturn mode is active, the robot motors are programmed with maximal speed, but opposite directions. This way the robot start spinning around its center axis. When $ErrorRate$ becomes again 1 sharpturn mode turned off and control is returned for PID controller.
 
 \subsection{Motor speed programming}
+Desired speed value is stored in percentage. 100\% means the preset travel speed value. It is also signed value. Positive sign means forward, while negative sign means reversed direction movement.\\
+\begin{align}
+ActualSpeed = \dfrac{DesiredSpeed * TravelSpeed}{100}
+\end{align}
+After the calculations of left and right side speeds, the absolute values are programmed into the PWM controller.\\
+Finally the motor directions programmed according to the sign of desired speed.
 
 \section{Timing}
 
@@ -550,7 +571,7 @@ Experiments has shown, if-then control can be used to 'convert' smooth path to p
 	\caption{Development timeline}
 	\label{fig:dev_timeline}
 \end{figure}
-
+The work phases distribution over time is presented here.
 
 \subsection{Familiarisation Of Robot}
 
@@ -658,13 +679,6 @@ As the robot had been moved over the black line we get the above sensor values. 
     } 
 \end{lstlisting}\vspace{-22pt}
 Using the above code, the robot was able to follow the line considerably well albeit not smoothly enough. The If/Else code above, takes into account the digital values that the sensors output which was determined during our value tweaking phase. From the first If statement, the motor\_forward function takes the maximum speed value of 255 and a delay of 10 milliseconds, if both middle sensors are on black and hence has a value of 1. After 10 milliseconds, the condition is checked again and moves to the next code if condition has changed. 
-
-
-
-
-
-
-
 
 \chapter{Conclusion}
 
