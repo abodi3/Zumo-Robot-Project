@@ -706,132 +706,10 @@ void motor_backward(uint8 speed,uint32 delay)
 }
 \end{lstlisting}\vspace{-22pt}
 
-
 \chapter{Conclusion}
-
-Summary and Conclusions. This section summarizes the thesis and its
-objectives and results and makes recommendations. It answers
-questions such as: What was the purpose of this thesis? What was the
-thesis based on? What was discovered or what was the outcome? To
-what extent were the objectives of the thesis achieved? What would not
-be known if this work had not been carried out? What recommendations
-can be made, i.e. what should the case company/organization do based
-on the findings/outcome of the thesis? What was left unexplained? How
-could research be continued? How can the thesis be used? In addition,
-this section may also reflect on what was learned during the entire
-project. Again, absolutely no new theory is introduced here.
-
-
-
-%
-%\chapter{Latex formating helplet}
-%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-%
-%\section{Section}
-%Here is an example how to add biblio entry \cite{kopka:guide} using the \textquotedblleft cite\textquotedblright ~\cite[section 4.2]{tobias:book}. Note that a paragraph is added by forcing a new line.
-%
-%And let also try the figure (see figure \vref{fig:latex-cover}) and internal reference (with label and ref or vref). The reference can be done to any label, for example why not to appendix \ref{appx:first} or to appendix \ref{appx:second}? To note, \LaTeX{} will place the figure to the best place (except with forcing). Let them float till the final of final edit\ldots ~then force them to not break a paragraph.%hugly hack... I'm sorry
-%\begin{figure}[h]
-%  \centering
-%  \includegraphics[width=7.1cm]{LaTeX_cover}
-%  \caption{\LaTeX{} cover image (Copied from wikibooks.org (2012) \cite{wikibooks:latex}).}
-%  \label{fig:latex-cover}
-%\end{figure}
-%
-%Let's also try a long quote:
-%From the Universal Declaration of Human Rights:
-%\begin{quote}
-%(1) Everyone has the right to education. Education shall be free, at least in the elementary and fundamental stages. Elementary education shall be compulsory. Technical and professional education shall be made generally available and higher education shall be equally accessible to all on the basis of merit.
-%
-%(2) Education shall be directed to the full development of the human personality and to the strengthening of respect for human rights and fundamental freedoms. It shall promote understanding, tolerance and friendship among all nations, racial or religious groups, and shall further the activities of the United Nations for the maintenance of peace.
-%
-%(3) Parents have a prior right to choose the kind of education that shall be given to their children. \cite[article 26]{un:udhr}
-%\end{quote}
-%
-%\textit{Quisque augue} est, \textbf{elementum ac porttitor} non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit.\vspace{-17pt} 
-%\begin{itemize}
-%\item \textbf{A small hack} with list
-%\item is to force the vertical space 
-%\item before and after the list
-%\end{itemize}
-%\vspace{-17pt} Nullam egestas enim at odio pellentesque bibendum. 
-%
-%\subsection{Subsection}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\subsection{Subsection with Math}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%Ionivahvuus lasketaan kaavalla.
-%\begin{align}
-%I&=\frac{1}{2}\cdot\sum z_i^2c_i \\
-%z_i&= \tn{ionin varausluku} \\
-%c_i&= \tn{ionin konsentraatio}
-%\end{align}
-%Aktiivisuuskerroin $\gamma_\pm$ lasketaan kaavalla.
-%\begin{align}
-%\log \gamma_\pm &= -\left|z_+\cdot z_-\right|A\cdot I^{\frac{1}{2}} \\
-%A &= \tn{0,509 (lämpötilassa 25\celsius}) \\
-%I &= \tn{ionivahvuus} \\
-%z &= \tn{ionien varaus}
-%\end{align}
-%
-%\section{Section with Source Code}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\vspace{-22pt}\begin{lstlisting}[language=PHP,caption={Descriptive Caption Text},label=testphp] 
-%
-%<?php
-%$userName = $_POST["usern"];
-%//maybe not?
-%if ($userName){
-%	?>
-%	<h2>Hello <?php echo $userName; ?>!</h2>
-%	<p>your message got received.</p>
-%	<?php
-%}
-%?>
-%\end{lstlisting}\vspace{-22pt}
-%
-%
-%As see in listing \ref{testphp}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\section{Section with Table}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\begin{table}[h]
-%  \centering
-%  \caption{Some data}
-%  %IMPORTANT the caption must be before the tabular, so it will be on top of the table (there are other tricks to force it on top; but this one is straitforward).
-%  \begin{tabular}{| l | >{\centering\arraybackslash}p{.5\textwidth} |}
-%    \hline
-%    Test 1 & test 1234 test \\
-%    \hline
-%    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the column size :( \\
-%    \hline
-%  \end{tabular}
-%  \label{table:some_data}
-%\end{table}
-%
-%
-%As presented in table \ref{table:some_data}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\begin{table}[h]
-%  \centering
-%  \caption{Another table with tabularx}
-%  \begin{tabularx}{.95\textwidth}{| l | >{\centering\arraybackslash} X |}
-%    \hline
-%    Test 1 & test 1234 test \\
-%    \hline
-%    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the table size :( \\
-%    \hline
-%  \end{tabularx}
-%  \label{table:some_data2}
-%\end{table}
-%
-%As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-
+The objective of this project was to develop controlling software for Zumo robot. It has been accomplished, as the robot is capable of following the path up to the finish line. During development and race the robot worked well and batteries have been spared.\\
+The if-then method works well. The PID controller also works on algorithm level. It can not be used yet, as fine tuning of parameters is necessary. But if the robot is intended for racing, the if-then approach should be further developed and tuned, because PID controller gives smoother but slower result.\\
+Development might be considered successful on educational level. Developers acquired basic electronic, device, programming and controlling knowledge. These can be used in future researches and developments.
 
 %----------------------------------------------------------------------------------------
 %   BIBLIOGRAPHY 
@@ -884,14 +762,24 @@ project. Again, absolutely no new theory is introduced here.
 \section{Frequency}
 Frequency means for periodical functions (e.g. signals) the number of periods completed in 1 second. Unit of frequency is Hertz (Hz). For example 1 period in 1 second is 1 Hz. 10 period in 1 second is 10 Hz.
 
-\section{Kinematics}
+\section{Infrared light}
+Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
 
 \section{Electricity}
 \subsection{Voltage division rule}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+Voltage division is a method to produce output voltage, which is fraction of the input voltage. If 2 resistor connected in series, the input voltage is distributed between them. The output voltage can taken from between the resistors.
+\begin{align}
+V_out = \dfrac{R_2}{R_1 + R_2} * V_in
+\end{align}
 
-\section{Infrared light}
-Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
+\begin{figure}
+	\centering
+	\includegraphics[width=5cm]{illustration/voltage_divider}
+	\caption{Voltage divider circuit}
+	\label{fig:Voltagedivider}
+\end{figure}
+
+
 
 %\clearpage % avoid that the last page of previous appendix get this header
 %\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
