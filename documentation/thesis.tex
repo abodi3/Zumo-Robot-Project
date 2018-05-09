@@ -529,18 +529,39 @@ Crossing lines detected in two step by recognizing black-to-white transitions.
 Experiments has shown, if-then control can be used to 'convert' smooth path to polygonal track. If the curvatures regarded as rough polygons, the robot movement becomes straight run with sudden direction changes resulting in faster method, than what PID control can provide.
 
 \subsection{PID control and error calculation}
+This method can provide the most accurate line following. It results in smooth although not the fastest run.\\
+First an error rate must be calculated. It is based on the two middle sensor's average value.
+\begin{align}
+ErrorRate = \dfrac{BlackValue - AverageReading}{BlackValue - WhiteValue}
+\end{align}
+The error rate should be between 0 and 1. Because $BlackValue$ and $WhiteValue$ contains some tolerance (to cover lighting circumstances), error rate can be outside of these boundaries. The direction of deviation also included in the value. Negative sign means deviation to the left side, positive means to the right.\\
+Next the integral and derivative parts are calculated.
+\begin{align}
+Integral = Integral + ErrorRate * DeltaTime
+\end{align}
+\begin{align}
+Derivative = \dfrac{Error - PreviousError}{DeltaTime}
+\end{align}
+In following step, the $ErrorRate$, $Integral$ and $Derivative$ values are multiplied by their respective coefficients and summed up. The absolute value of result is calculated. Finally, based on the sign of error rate (indicates direction) correction is applied to opposite side motor speed. (If robot is on left side of track the right motor must brake.)
 
 \subsection{Sharp turn calculation}
-
+If $ErrorRate$ drops to zero, it means the robot lost track completely. In this situation it should find the way back to the path. To achieve this the two end sensor values are continuously monitored. If any of them reads $BlackValue$, the time is recorded. When the track is lost, sharpturn mode turned on. In sharpturn mode PID control is disabled and more direct control utilized.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=9cm]{illustration/Sharpturn}
 	\caption{The sharp turning mechanism}
 	\label{fig:Sharpturn}
-\end{figure}
-
+\end{figure}\\
+The robot can not leave the track without reading on any side $BlackValue$, therefore one of the time stamps is indicating where should the robot look for the path.\\
+When sharpturn mode is active, the robot motors are programmed with maximal speed, but opposite directions. This way the robot start spinning around its center axis. When $ErrorRate$ becomes again 1 sharpturn mode turned off and control is returned for PID controller.
 
 \subsection{Motor speed programming}
+Desired speed value is stored in percentage. 100\% means the preset travel speed value. It is also signed value. Positive sign means forward, while negative sign means reversed direction movement.\\
+\begin{align}
+ActualSpeed = \dfrac{DesiredSpeed * TravelSpeed}{100}
+\end{align}
+After the calculations of left and right side speeds, the absolute values are programmed into the PWM controller.\\
+Finally the motor directions programmed according to the sign of desired speed.
 
 \section{Timing}
 
@@ -550,7 +571,7 @@ Experiments has shown, if-then control can be used to 'convert' smooth path to p
 	\caption{Development timeline}
 	\label{fig:dev_timeline}
 \end{figure}
-
+The work phases distribution over time is presented here.
 
 \subsection{Familiarisation Of Robot}
 
@@ -684,140 +705,71 @@ void motor_backward(uint8 speed,uint32 delay)
     CyDelay(delay);
 }
 \end{lstlisting}\vspace{-22pt}
+The if else line follower implemented the MotorDirLeft\_Write(1) to cause the left motor to move backward whiles the right motor moved forwards making it possible to make a tighter left turn. 
 
+\subsection{PD Control}
+A simple proportional and derivative (PD) control was tested on the robot. The code is shown bellow. The robot was able to follow the line this way but not as smoothly as expected. The PD control required a lot of try and error by observing the robots behaviour when kpValue and kdValue were varied. A more complex PD control was later developed which run much smoothly.
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Simple PD Control},label=PD\_Control.c]
+//PD Control
+    
+        setPoint = 14000; // value to be compared to, ref.l1 close to edge of line
+        
+        kpValue = 1.3; // modifiable
+        
+        kdValue = 0.5; // modifiable
+    
+        error = setPoint - ref.l1; //error calculation in relation to ref.l1
+    
+        //previousError = error; //differential error
+        
+        correction = kpValue * error; //+ kdValue * (error-previousError); //correction to be used
+    
+        rightMotorSpeed = rightSpeed - correction;
+        leftMotorSpeed = leftSpeed + correction;
+        
+      
+        if (rightMotorSpeed > rightSpeed) rightMotorSpeed = rightSpeed;
+            
+        if (leftMotorSpeed > leftSpeed) leftMotorSpeed = leftSpeed;
+\end{lstlisting}\vspace{-22pt}
 
-
-
-
-
-
-
+\subsection{Sumo Fight Programming and Tuning}
+The sumo fight code was a basic algorithm that took into consideration distance of other robots and a decision to move towards the robots and attempt to push them out of the ring. A simple algorithm was written to this effect. The Sumo code is shown bellow. 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Sumo Behaviour},label=Sumo.c]
+int distance;
+ 
+    int seek()
+    { 
+         motor_turn(0,155,0);             //Keep turning in a circle until
+        return 0;
+    }
+    int attack(int distance, int digl3, int digr3)  //function to attack objects at a certain distance
+    {
+        if (distance <= 35)
+        {
+            motor_forward(255,1);      //if an object is about 35cm away or less, move towards it   
+        }
+        
+        else
+            
+        { 
+            seek();                    //object more than 35cm away, ignore and keep searching
+        }
+        
+        if (digl3 || digr3) 
+        {
+            motor_backward(200,0);      //if sensors see black, move backwards and turn
+            motor_turn(0,200,0);
+        }
+           
+        return 0;
+    }
+\end{lstlisting}\vspace{-22pt}
 
 \chapter{Conclusion}
-
-Summary and Conclusions. This section summarizes the thesis and its
-objectives and results and makes recommendations. It answers
-questions such as: What was the purpose of this thesis? What was the
-thesis based on? What was discovered or what was the outcome? To
-what extent were the objectives of the thesis achieved? What would not
-be known if this work had not been carried out? What recommendations
-can be made, i.e. what should the case company/organization do based
-on the findings/outcome of the thesis? What was left unexplained? How
-could research be continued? How can the thesis be used? In addition,
-this section may also reflect on what was learned during the entire
-project. Again, absolutely no new theory is introduced here.
-
-
-
-%
-%\chapter{Latex formating helplet}
-%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh. 
-%
-%\section{Section}
-%Here is an example how to add biblio entry \cite{kopka:guide} using the \textquotedblleft cite\textquotedblright ~\cite[section 4.2]{tobias:book}. Note that a paragraph is added by forcing a new line.
-%
-%And let also try the figure (see figure \vref{fig:latex-cover}) and internal reference (with label and ref or vref). The reference can be done to any label, for example why not to appendix \ref{appx:first} or to appendix \ref{appx:second}? To note, \LaTeX{} will place the figure to the best place (except with forcing). Let them float till the final of final edit\ldots ~then force them to not break a paragraph.%hugly hack... I'm sorry
-%\begin{figure}[h]
-%  \centering
-%  \includegraphics[width=7.1cm]{LaTeX_cover}
-%  \caption{\LaTeX{} cover image (Copied from wikibooks.org (2012) \cite{wikibooks:latex}).}
-%  \label{fig:latex-cover}
-%\end{figure}
-%
-%Let's also try a long quote:
-%From the Universal Declaration of Human Rights:
-%\begin{quote}
-%(1) Everyone has the right to education. Education shall be free, at least in the elementary and fundamental stages. Elementary education shall be compulsory. Technical and professional education shall be made generally available and higher education shall be equally accessible to all on the basis of merit.
-%
-%(2) Education shall be directed to the full development of the human personality and to the strengthening of respect for human rights and fundamental freedoms. It shall promote understanding, tolerance and friendship among all nations, racial or religious groups, and shall further the activities of the United Nations for the maintenance of peace.
-%
-%(3) Parents have a prior right to choose the kind of education that shall be given to their children. \cite[article 26]{un:udhr}
-%\end{quote}
-%
-%\textit{Quisque augue} est, \textbf{elementum ac porttitor} non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit.\vspace{-17pt} 
-%\begin{itemize}
-%\item \textbf{A small hack} with list
-%\item is to force the vertical space 
-%\item before and after the list
-%\end{itemize}
-%\vspace{-17pt} Nullam egestas enim at odio pellentesque bibendum. 
-%
-%\subsection{Subsection}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\subsection{Subsection with Math}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%Ionivahvuus lasketaan kaavalla.
-%\begin{align}
-%I&=\frac{1}{2}\cdot\sum z_i^2c_i \\
-%z_i&= \tn{ionin varausluku} \\
-%c_i&= \tn{ionin konsentraatio}
-%\end{align}
-%Aktiivisuuskerroin $\gamma_\pm$ lasketaan kaavalla.
-%\begin{align}
-%\log \gamma_\pm &= -\left|z_+\cdot z_-\right|A\cdot I^{\frac{1}{2}} \\
-%A &= \tn{0,509 (lämpötilassa 25\celsius}) \\
-%I &= \tn{ionivahvuus} \\
-%z &= \tn{ionien varaus}
-%\end{align}
-%
-%\section{Section with Source Code}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\vspace{-22pt}\begin{lstlisting}[language=PHP,caption={Descriptive Caption Text},label=testphp] 
-%
-%<?php
-%$userName = $_POST["usern"];
-%//maybe not?
-%if ($userName){
-%	?>
-%	<h2>Hello <?php echo $userName; ?>!</h2>
-%	<p>your message got received.</p>
-%	<?php
-%}
-%?>
-%\end{lstlisting}\vspace{-22pt}
-%
-%
-%As see in listing \ref{testphp}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\section{Section with Table}
-%Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\begin{table}[h]
-%  \centering
-%  \caption{Some data}
-%  %IMPORTANT the caption must be before the tabular, so it will be on top of the table (there are other tricks to force it on top; but this one is straitforward).
-%  \begin{tabular}{| l | >{\centering\arraybackslash}p{.5\textwidth} |}
-%    \hline
-%    Test 1 & test 1234 test \\
-%    \hline
-%    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the column size :( \\
-%    \hline
-%  \end{tabular}
-%  \label{table:some_data}
-%\end{table}
-%
-%
-%As presented in table \ref{table:some_data}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-%\begin{table}[h]
-%  \centering
-%  \caption{Another table with tabularx}
-%  \begin{tabularx}{.95\textwidth}{| l | >{\centering\arraybackslash} X |}
-%    \hline
-%    Test 1 & test 1234 test \\
-%    \hline
-%    Some more date comes here & with more values and if the text is very long it will disappear out of the box unless you force the table size :( \\
-%    \hline
-%  \end{tabularx}
-%  \label{table:some_data2}
-%\end{table}
-%
-%As presented in table \ref{table:some_data2}: Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit.
-%
-
+The objective of this project was to develop controlling software for Zumo robot. It has been accomplished, as the robot is capable of following the path up to the finish line. During development and race the robot worked well and batteries have been spared.\\
+The if-then method works well. The PID controller also works on algorithm level. It can not be used yet, as fine tuning of parameters is necessary. But if the robot is intended for racing, the if-then approach should be further developed and tuned, because PID controller gives smoother but slower result.\\
+Development might be considered successful on educational level. Developers acquired basic electronic, device, programming and controlling knowledge. These can be used in future researches and developments.
 
 %----------------------------------------------------------------------------------------
 %   BIBLIOGRAPHY 
@@ -870,14 +822,24 @@ project. Again, absolutely no new theory is introduced here.
 \section{Frequency}
 Frequency means for periodical functions (e.g. signals) the number of periods completed in 1 second. Unit of frequency is Hertz (Hz). For example 1 period in 1 second is 1 Hz. 10 period in 1 second is 10 Hz.
 
-\section{Kinematics}
+\section{Infrared light}
+Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
 
 \section{Electricity}
 \subsection{Voltage division rule}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam aliquam aliquam purus, in ornare nulla imperdiet molestie. Nam tempus erat eu dui rhoncus et vestibulum mi elementum. Ut porttitor elit sit amet justo dignissim sit amet sagittis massa egestas. Mauris sed dolor eget dui fermentum sodales ut eu nibh.
+Voltage division is a method to produce output voltage, which is fraction of the input voltage. If 2 resistor connected in series, the input voltage is distributed between them. The output voltage can taken from between the resistors.
+\begin{align}
+V_out = \dfrac{R_2}{R_1 + R_2} * V_in
+\end{align}
 
-\section{Infrared light}
-Infrared light (IR) is 700nm to 1mm section of light spectrum. The wavelength of IR is longer than that visible by human eye. This invisibility gives IR light wide range of purpose.
+\begin{figure}
+	\centering
+	\includegraphics[width=5cm]{illustration/voltage_divider}
+	\caption{Voltage divider circuit}
+	\label{fig:Voltagedivider}
+\end{figure}
+
+
 
 %\clearpage % avoid that the last page of previous appendix get this header
 %\setcounter{page}{1} %restet to page 1 (you can't avoid this one (I think))
