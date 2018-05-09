@@ -1,4 +1,4 @@
-/**
+ /**
  * @file    Reflectance.c
  * @brief   Basic methods for operating reflectance sensor. For more details, please refer to Reflectance.h file. 
  * @details included in Zumo shield

@@ -1333,32 +1333,28 @@ int main()
 #if 1
 //ultrasonic sensor//
     int distance;
-      
-    
+ 
     int seek()
-    {
-         
-         motor_turn(0,155,0);
-        
+    { 
+         motor_turn(0,155,0);             //Keep turning in a circle until
         return 0;
     }
-    int attack(int distance, int digl3, int digr3)
+    int attack(int distance, int digl3, int digr3)  //function to attack objects at a certain distance
     {
         if (distance <= 35)
         {
-            motor_forward(255,1);         
+            motor_forward(255,1);      //if an object is about 35cm away or less, move towards it   
         }
         
-        
-        if (distance > 35)
+        else
             
         { 
-            seek();    
+            seek();                    //object more than 35cm away, ignore and keep searching
         }
         
         if (digl3 || digr3) 
         {
-            motor_backward(200,0);
+            motor_backward(200,0);      //if sensors see black, move backwards and turn
             motor_turn(0,200,0);
         }
            

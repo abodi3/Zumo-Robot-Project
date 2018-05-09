@@ -493,7 +493,7 @@ The actual measurement happens in three steps.
 \end{itemize}
 Measurement procedure always takes 1 ms. Different sensors have different sensitivities. Environmental lighting also affects measurement as sun light contains plenty of infrared light.\cite{Lectures}
 
-\chapter{Realization}
+\chapter{Methods And Materials}
 In this chapter the process of project development is presented including code explanation and the circumstances of experimenting with Zumo robot.
 
 \section{The embedded software and mechanics}
@@ -580,7 +580,7 @@ PSoC creator software was downloaded and installed. Github was used as version c
 
 \subsection{Play With Robot}
 We experimented with the robot forward movement as a first step. The motor\_forward function provided by the library, handles this. The code snippet bellow shows the motor\_forward function.
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Robot Forward Move},label=move.c] 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Robot Forward Move Function},label=Move] 
 void motor_forward(uint8 speed,uint32 delay)
 {
     MotorDirLeft_Write(0);      // set LeftMotor forward mode
@@ -591,7 +591,7 @@ void motor_forward(uint8 speed,uint32 delay)
 }
 \end{lstlisting}\vspace{-22pt}
 As shown in code snippet  , the motor\_forward function takes uint8 (unsinged 8bit Integer) value of 100 which represents the speed value as the first parameter and 2000 as the delay.  
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Robot Forward Move},label=move.c] 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Robot Forward Move Code},label=MoveCode] 
 motor_forward(100,2000);     // moving forward
 motor_turn(200,50,2000);     // turn
 motor_turn(50,200,2000);     // turn
@@ -601,7 +601,7 @@ motor_backward(100,2000);    // moving backward
 \subsection{Sensors And Data}
 The robot uses six reflective sensors. The values provided by the sensors are higher when on black, around 23000 and about 5000 when on white. 
 As the robot nears black, the values increases and vice versa. For the Sumo fight, an ultrasonic sensor was used to measure distance. The ultrasonic sensor served as the eye of the robot to determine the proximity of other robots. Reflectance\_start() function from the library was used to start the sensors.
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance},label=reflectance.c] 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance},label=Reflect] 
 void reflectance_start()
 {
     IR_led_Write(1);
@@ -618,7 +618,7 @@ void reflectance_start()
 \end{lstlisting}\vspace{-22pt}
 
 \subsection{Tweaking Values}
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance Threshold},label=refthres.c] 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Reflectance Threshold},label=Refthreshold] 
 reflectance_set_threshold(9000, 9000, 11000, 11000, 9000, 9000); // set center sensor threshold to 11000 and others to 9000
 \end{lstlisting}\vspace{-22pt}
 The reflectance\_set\_threshold() function above takes six parameters which are the threshold above which a sensor output is considered a logic 1 and bellow a logic 0. During this phase of the project, we played with several possible values. To do this, we had the robot connected to the laptop without motor running and moved the robot on the black and white to see how the values changed.\\
@@ -631,7 +631,7 @@ The reflectance\_set\_threshold() function above takes six parameters which are 
 As the robot had been moved over the black line we get the above sensor values. The peak values form the black line and the low 'valley' values represent the white background.
 
 \subsection{Line Follow With If/Else}
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={If/Else Line Follow},label=follow.c] 
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={If Else Line Follow},label=Follow] 
  //IF AND ELSE STATEMENTS WITH DIGITAL VALUES OF 4 MIDDLE SENSORS
        
     if (!dig.l2 &&dig.l1 && dig.r1 && !dig.r2) // (0110)all clear condition
@@ -681,7 +681,7 @@ As the robot had been moved over the black line we get the above sensor values. 
 Using the above code, the robot was able to follow the line considerably well albeit not smoothly enough. The If/Else code above, takes into account the digital values that the sensors output which was determined during our value tweaking phase. From the first If statement, the motor\_forward function takes the maximum speed value of 255 and a delay of 10 milliseconds, if both middle sensors are on black and hence has a value of 1. After 10 milliseconds, the condition is checked again and moves to the next code if condition has changed. 
 The first else if condition statement, checks if sensor l2 and l1  can both see black and if r2 and r1 both see white, in that case, we give the left motor a speed of 0 and the right motor a speed of 180 cause the robot to turn left. A  check was performed again after 10milliseconds. This approach worked for simple turns but failed at sharper turns. 
 We found that one way to work the sharper turns was to make use of the motor\_backwards function of the library.  
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={motor\_turn and motor\_backwards},label=backwards.c]
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={motor\_turn and motor\_backwards},label=Backward]
 void motor_turn(uint8 l_speed, uint8 r_speed, uint32 delay)
 {
     PWM_WriteCompare1(l_speed); 
@@ -709,7 +709,7 @@ The if else line follower implemented the MotorDirLeft\_Write(1) to cause the le
 
 \subsection{PD Control}
 A simple proportional and derivative (PD) control was tested on the robot. The code is shown bellow. The robot was able to follow the line this way but not as smoothly as expected. The PD control required a lot of try and error by observing the robots behaviour when kpValue and kdValue were varied. A more complex PD control was later developed which run much smoothly.
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Simple PD Control},label=PD\_Control.c]
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Simple PD Control},label=Controller]
 //PD Control
     
         setPoint = 14000; // value to be compared to, ref.l1 close to edge of line
@@ -735,7 +735,7 @@ A simple proportional and derivative (PD) control was tested on the robot. The c
 
 \subsection{Sumo Fight Programming and Tuning}
 The sumo fight code was a basic algorithm that took into consideration distance of other robots and a decision to move towards the robots and attempt to push them out of the ring. A simple algorithm was written to this effect. The Sumo code is shown bellow. 
-\vspace{-22pt}\begin{lstlisting}[language=C,caption={Sumo Behaviour},label=Sumo.c]
+\vspace{-22pt}\begin{lstlisting}[language=C,caption={Sumo},label=Sumofight]
 int distance;
  
     int seek()
@@ -765,6 +765,7 @@ int distance;
         return 0;
     }
 \end{lstlisting}\vspace{-22pt}
+
 
 \chapter{Conclusion}
 The objective of this project was to develop controlling software for Zumo robot. It has been accomplished, as the robot is capable of following the path up to the finish line. During development and race the robot worked well and batteries have been spared.\\
